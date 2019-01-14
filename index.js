@@ -6,10 +6,12 @@ const fs = require('fs');
 let assert = require('assert');
 const mkdirp = require('mkdirp');
 const getDirName = require('path').dirname;
+
 /**
  * Resemble.js helper class for CodeceptJS, this allows screen comparison
  * @author Puneet Kala
  */
+
 class ResembleHelper extends Helper {
 
     constructor(config) {
@@ -17,24 +19,29 @@ class ResembleHelper extends Helper {
     }
 
     /**
-     *
+     * Compare Images
      * @param image1
      * @param image2
      * @param diffImage
-     * @param tolerance
      * @param options
      * @returns {Promise<any | never>}
      */
-    async _compareImages (image1, image2, diffImage, tolerance, options) {
+    async _compareImages (image1, image2, diffImage, options) {
         image1 = this.config.baseFolder + image1;
         image2 = this.config.screenshotFolder + image2;
 
         return new Promise((resolve, reject) => {
-            if (options !== undefined)
+            if (options.boundingBox !== undefined)
             {
                 resemble.outputSettings({
                     boundingBox: options.boundingBox
                 });
+            }
+
+            if (options.tolerance !== undefined)
+            {
+                console.log("Tolerance Level Provided " + options.tolerance);
+                var tolerance = options.tolerance;
             }
             resemble.compare(image1, image2, options, (err, data) => {
                 if (err) {
@@ -61,63 +68,82 @@ class ResembleHelper extends Helper {
     /**
      *
      * @param image1
-     * @param image2
-     * @param diffImage
-     * @param tolerance
      * @param options
      * @returns {Promise<*>}
      */
-    async _fetchMisMatchPercentage (image1, image2, diffImage, tolerance, options) {
-        var result = this._compareImages(image1, image2, diffImage, tolerance, options);
+    async _fetchMisMatchPercentage (image1, options) {
+        var image2 = image1;
+        var diffImage = "Diff_" + image1.split(".")[0];
+        var result = this._compareImages(image1, image2, diffImage, options);
         var data = await Promise.resolve(result);
         return data.misMatchPercentage;
     }
 
     /**
-     * Mis Match Percentage Verification
+     * Check Visual Difference for Base and Screenshot Image
      * @param baseImage         Name of the Base Image (Base Image path is taken from Configuration)
-     * @param screenShotImage   Name of the screenshot Image (Screenshot Image Path is taken from Configuration)
-     * @param diffImageName     Name of the Diff Image which will be saved after comparison (Diff Image path is taken from Configuration)
-     * @param tolerance         Tolerance Percentage, default value 10
-     * @param prepareBase       True | False, depending on the requirement if the base images are missing
-     * @param selector          If set, passed selector will be used to fetch Bouding Box and compared on two images
-     * @param options           Resemble JS Options, read more here: https://github.com/rsmbl/Resemble.js
+     * @param options           Options ex {prepareBaseImage: true, tolerance: 5} along with Resemble JS Options, read more here: https://github.com/rsmbl/Resemble.js
      * @returns {Promise<void>}
      */
-    async verifyMisMatchPercentage(baseImage, screenShotImage, diffImageName, tolerance = 10, prepareBase = false, selector, options){
-        if (prepareBase)
+    async seeVisualDiff(baseImage, options) {
+        if (options == undefined)
         {
-            await this.prepareBaseImage(baseImage, screenShotImage);
+            options = {};
+            options.tolerance = 0;
         }
+
+        if (options.prepareBaseImage !== undefined && options.prepareBaseImage)
+        {
+            await this._prepareBaseImage(baseImage);
+        }
+
+        var misMatch = await this._fetchMisMatchPercentage(baseImage, options);
+        console.log("MisMatch Percentage Calculated is " + misMatch);
+        assert(misMatch <= options.tolerance, "MissMatch Percentage " + misMatch);
+    }
+
+    /**
+     * See Visual Diff for an Element on a Page
+     *
+     * @param selector   Selector which has to be compared expects these -> CSS|XPath|ID
+     * @param baseImage  Base Image for comparison
+     * @param options    Options ex {prepareBaseImage: true, tolerance: 5} along with Resemble JS Options, read more here: https://github.com/rsmbl/Resemble.js
+     * @returns {Promise<void>}
+     */
+    async seeVisualDiffForElement(selector, baseImage, options){
 
         if (selector !== undefined)
         {
-            if (options !== undefined)
+            if (options == undefined)
             {
-                options.boundingBox = await this.getBoundingBox(selector);
+                options = {};
+                options.tolerance = 0;
             }
-            else
-            {
-                var options = {};
-                options.boundingBox = await this.getBoundingBox(selector);
-            }
-        }
 
-        var misMatch = await this._fetchMisMatchPercentage(baseImage, screenShotImage, diffImageName, tolerance, options);
-        console.log("MisMatch Percentage Calculated is " + misMatch);
-        assert.ok(misMatch < tolerance, "MissMatch Percentage " + misMatch);
+            if (options.prepareBaseImage !== undefined && options.prepareBaseImage)
+            {
+                await this._prepareBaseImage(baseImage);
+            }
+
+            options.boundingBox = await this._getBoundingBox(selector);
+            var misMatch = await this._fetchMisMatchPercentage(baseImage, options);
+            console.log("MisMatch Percentage Calculated is " + misMatch);
+            assert(misMatch <= options.tolerance, "MissMatch Percentage " + misMatch);
+        }
+        else {
+            return null;
+        }
     }
 
     /**
      * Function to prepare Base Images from Screenshots
      *
-     * @param baseImage        Name of the Base Image (Base Image path is taken from Configuration)
      * @param screenShotImage  Name of the screenshot Image (Screenshot Image Path is taken from Configuration)
      */
-    async prepareBaseImage(baseImage, screenShotImage) {
+    async _prepareBaseImage(screenShotImage) {
         var configuration = this.config;
 
-        await this._createDir(configuration.baseFolder + baseImage);
+        await this._createDir(configuration.baseFolder + screenShotImage);
 
         fs.access(configuration.screenshotFolder + screenShotImage, fs.constants.F_OK | fs.constants.W_OK, (err) => {
             if (err) {
@@ -133,7 +159,7 @@ class ResembleHelper extends Helper {
             }
         });
 
-        fs.copyFileSync(configuration.screenshotFolder + screenShotImage, configuration.baseFolder + baseImage);
+        fs.copyFileSync(configuration.screenshotFolder + screenShotImage, configuration.baseFolder + screenShotImage);
     }
 
     /**
@@ -152,7 +178,7 @@ class ResembleHelper extends Helper {
      * @param selector CSS|XPath|ID selector
      * @returns {Promise<{boundingBox: {left: *, top: *, right: *, bottom: *}}>}
      */
-    async getBoundingBox(selector){
+    async _getBoundingBox(selector){
         const browser = this._getBrowser();
 
         var ele = await browser.element(selector)
