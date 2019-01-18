@@ -29,7 +29,10 @@ class ResembleHelper extends Helper {
     async _compareImages (image1, image2, diffImage, options) {
         image1 = this.config.baseFolder + image1;
         image2 = this.config.screenshotFolder + image2;
-
+        if(typeof this.config.consoleOutput == 'undefined')
+        {
+            this.config.consoleOutput = true
+        }
         return new Promise((resolve, reject) => {
             if (options.boundingBox !== undefined)
             {
@@ -38,15 +41,15 @@ class ResembleHelper extends Helper {
                 });
             }
 
-            if (options.tolerance !== undefined)
+            if (options.tolerance !== undefined && this.config.consoleOutput)
             {
                 console.log("Tolerance Level Provided " + options.tolerance);
                 var tolerance = options.tolerance;
             }
-            resemble.compare(image1, image2, options, (err, data) => {
+            resemble.compare(image1, image2, options, (err, data) => {        
                 if (err) {
                     reject(err);
-                } else {
+                } else {         
                     resolve(data);
                     if (data.misMatchPercentage >= tolerance) {
                         mkdirp(getDirName(this.config.diffFolder + diffImage), function (err) {
@@ -98,7 +101,9 @@ class ResembleHelper extends Helper {
         }
 
         var misMatch = await this._fetchMisMatchPercentage(baseImage, options);
-        console.log("MisMatch Percentage Calculated is " + misMatch);
+        if(this.config.consoleOutput){
+            console.log("MisMatch Percentage Calculated is " + misMatch);
+        }
         assert(misMatch <= options.tolerance, "MissMatch Percentage " + misMatch);
     }
 
