@@ -132,7 +132,10 @@ class ResembleHelper extends Helper {
 
             options.boundingBox = await this._getBoundingBox(selector);
             var misMatch = await this._fetchMisMatchPercentage(baseImage, options);
-            console.log("MisMatch Percentage Calculated is " + misMatch);
+            if(this.config.consoleOutput)
+            {
+                console.log("MisMatch Percentage Calculated is " + misMatch);
+            }
             assert(misMatch <= options.tolerance, "MissMatch Percentage " + misMatch);
         }
         else {
