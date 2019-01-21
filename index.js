@@ -41,9 +41,11 @@ class ResembleHelper extends Helper {
                 });
             }
 
-            if (options.tolerance !== undefined && this.config.consoleOutput)
+            if (options.tolerance !== undefined)
             {
-                console.log("Tolerance Level Provided " + options.tolerance);
+                if(this.config.consoleOutput){
+                    console.log("Tolerance Level Provided " + options.tolerance);
+                }
                 var tolerance = options.tolerance;
             }
             resemble.compare(image1, image2, options, (err, data) => {        
