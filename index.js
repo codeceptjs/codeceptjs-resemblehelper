@@ -191,17 +191,25 @@ class ResembleHelper extends Helper {
     async _getBoundingBox(selector){
         const browser = this._getBrowser();
 
-        var ele = await browser.element(selector)
-            .then((res) => {
-                return res;
-            })
-            .catch((err) => {
-                // Catch the error because webdriver.io throws if the element could not be found
-                // Source: https://github.com/webdriverio/webdriverio/blob/master/lib/protocol/element.js
-                return null;
-            });
-        var location = await browser.getLocation(selector);
-        var size = await browser.getElementSize(selector);
+        if (this.helpers['WebDriver']) {
+            const ele = await browser.$(selector);
+            var location = await ele.getLocation();
+            var size = await ele.getSize();
+        }
+        else {
+            var ele = await browser.element(selector)
+                .then((res) => {
+                    return res;
+                })
+                .catch((err) => {
+                    // Catch the error because webdriver.io throws if the element could not be found
+                    // Source: https://github.com/webdriverio/webdriverio/blob/master/lib/protocol/element.js
+                    return null;
+                });
+            var location = await browser.getLocation(selector);
+            var size = await browser.getElementSize(selector);
+        }
+
         var bottom = size.height + location.y;
         var right = size.width + location.x;
         var boundingBox = {
