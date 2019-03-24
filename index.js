@@ -6,6 +6,7 @@ const fs = require('fs');
 let assert = require('assert');
 const mkdirp = require('mkdirp');
 const getDirName = require('path').dirname;
+const allure = codeceptjs.container.plugin('allure');
 
 /**
  * Resemble.js helper class for CodeceptJS, this allows screen comparison
@@ -220,6 +221,9 @@ class ResembleHelper extends Helper {
         };
 
         return boundingBox;
+    }
+    {
+     var enableScreenshotDiffPlugin = true ;
     }
 
     _getBrowser() {
