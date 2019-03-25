@@ -6,7 +6,7 @@ const fs = require('fs');
 let assert = require('assert');
 const mkdirp = require('mkdirp');
 const getDirName = require('path').dirname;
-
+const codeceptjs= require('codeceptjs');
 /**
  * Resemble.js helper class for CodeceptJS, this allows screen comparison
  * @author Puneet Kala
@@ -221,6 +221,19 @@ class ResembleHelper extends Helper {
 
         return boundingBox;
     }
+{
+
+const allure = codeceptjs.container.plugins('allure');
+if(allure)
+{
+const outputFile = path.join(global.output_dir, fileName);
+var misMatch = await this._fetchMisMatchPercentage(baseImage, options);
+allure.addAttachment('screenshotDiff',fs.readFileSync(outputFile),'diff');
+allure.addLabel('screenshotDiff',misMatch);
+}
+}
+
+
 
     _getBrowser() {
         if (this.helpers['WebDriver']) {
