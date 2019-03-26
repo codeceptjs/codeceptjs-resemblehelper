@@ -227,7 +227,7 @@ class ResembleHelper extends Helper {
     {
    const allureReporter = Container.plugins('allure');
         if (allureReporter) {
-          allureReporter.addAttachment('diffImage', fs.readFileSync(path.join(this.config.diffFolder, fileName)), 'image/png');
+          allureReporter.addAttachment('screenshotDiff', fs.readFileSync(path.join(this.config.diffFolder, fileName)), 'image/png');
         };
     }
     _getBrowser() {
