@@ -97,6 +97,6 @@ Scenario('Compare CPU Usage Images', async (I) => {
 });
 ```
 
-Also, if you want to use the Allure Screen Difference Plugin
-add `enableScreenshotDiffPlugin` - a boolean flag for add screenshot diff to report in the config file
-This will trigger the plugin whenever either of `seeVisualDiff` and `seeVisualDiffForElement` is called.
+Also, if you want to use the Allure Screen Difference Plugin, 
+add `enableScreenshotDiffPlugin` - a boolean flag for adding screenshot diff to report in the config file.
+This will be trigger the plugin whenever either of `seeVisualDiff` and `seeVisualDiffForElement` is called.
