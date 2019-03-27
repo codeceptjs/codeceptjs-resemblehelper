@@ -9,10 +9,11 @@
   "dependencies": {
     "assert": "^1.4.1",
     "canvas": "^2.2.0",
-    "mz": "^2.7.0",
-    "resemblejs": "^3.0.0",
+    "codeceptjs": "^2.0.8",
     "mkdirp": "^0.5.1",
-    "path": "^0.12.7"
+    "mz": "^2.7.0",
+    "path": "^0.12.7",
+    "resemblejs": "^3.0.0"
   },
   "keywords": [
     "codeceptJS",

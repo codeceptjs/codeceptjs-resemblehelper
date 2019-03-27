@@ -6,6 +6,8 @@ const fs = require('fs');
 let assert = require('assert');
 const mkdirp = require('mkdirp');
 const getDirName = require('path').dirname;
+const codecept = require("codeceptjs");
+const allure = codecept.container.plugins('allure');
 
 /**
  * Resemble.js helper class for CodeceptJS, this allows screen comparison
@@ -103,6 +105,16 @@ class ResembleHelper extends Helper {
         }
 
         var misMatch = await this._fetchMisMatchPercentage(baseImage, options);
+
+        // allure functionality
+        // adds three attachments to the reporter to carry out the image difference pluggin
+        // works when the enableScreenshotDiffPlugin flag is set in the config file
+        if(config.enableScreenshotDiffPlugin) {
+            allure.addAttachment('Base Image', fs.readFileSync(path.join(this.config.baseFolder, baseImage)), 'image/png');
+            allure.addAttachment('Screenshot Image', fs.readFileSync(path.join(this.config.screenshotFolder, baseImage)), 'image/png');
+            allure.addAttachment('Diff Image', fs.readFileSync(path.join(this.config.diffFolder, diffImage)), 'image/png');
+        }
+
         if(this.config.consoleOutput){
             console.log("MisMatch Percentage Calculated is " + misMatch);
         }
@@ -134,6 +146,16 @@ class ResembleHelper extends Helper {
 
             options.boundingBox = await this._getBoundingBox(selector);
             var misMatch = await this._fetchMisMatchPercentage(baseImage, options);
+
+            // allure functionality
+            // adds three attachments to the reporter to carry out the image difference pluggin
+            // works when the enableScreenshotDiffPlugin flag is set in the config file
+            if(config.enableScreenshotDiffPlugin) {
+                allure.addAttachment('Base Image', fs.readFileSync(path.join(this.config.baseFolder, baseImage)), 'image/png');
+                allure.addAttachment('Screenshot Image', fs.readFileSync(path.join(this.config.screenshotFolder, baseImage)), 'image/png');
+                allure.addAttachment('Diff Image', fs.readFileSync(path.join(this.config.diffFolder, diffImage)), 'image/png');
+            }
+
             if(this.config.consoleOutput)
             {
                 console.log("MisMatch Percentage Calculated is " + misMatch);

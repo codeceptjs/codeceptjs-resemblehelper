@@ -96,3 +96,7 @@ Scenario('Compare CPU Usage Images', async (I) => {
     I.seeVisualDiffForElement("//div[@class='panel-container']", "Complete_Dashboard_Image.png", {prepareBaseImage: false, tolerance: 3});
 });
 ```
+
+Also, if you want to use the Allure Screen Difference Plugin
+add `enableScreenshotDiffPlugin` - a boolean flag for add screenshot diff to report in the config file
+This will trigger the plugin whenever either of `seeVisualDiff` and `seeVisualDiffForElement` is called.
