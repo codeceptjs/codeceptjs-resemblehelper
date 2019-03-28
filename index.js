@@ -196,6 +196,23 @@ class ResembleHelper extends Helper {
             var location = await ele.getLocation();
             var size = await ele.getSize();
         }
+
+        else if(this.helpers['Puppeteer']) {
+            const ele =  await page.$(selector).then((res) => res).catch((err) =>  null);
+
+            if(ele === null)
+                return null;
+
+            var boundingBoxTemp = await ele.boundingBox().then((res) => res).catch((err) => null);
+
+            return {
+                left: boundingBoxTemp.x,
+                top: boundingBoxTemp.y,
+                right: boundingBoxTemp.x + boundingBoxTemp.width,
+                bottom: boundingBoxTemp.y + boundingBoxTemp.height
+            }
+        }
+        
         else {
             var ele = await browser.element(selector)
                 .then((res) => {
@@ -231,6 +248,9 @@ class ResembleHelper extends Helper {
         }
         if (this.helpers['WebDriverIO']) {
             return this.helpers['WebDriverIO'].browser;
+        }
+        if (this.helpers['Puppeteer']) {
+            return this.helpers['Puppeteer'].browser;
         }
         throw new Error('No matching helper found. Supported helpers: WebDriver/Appium/WebDriverIO');
     }
