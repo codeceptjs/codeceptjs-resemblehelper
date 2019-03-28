@@ -109,7 +109,7 @@ class ResembleHelper extends Helper {
         // allure functionality
         // adds three attachments to the reporter to carry out the image difference pluggin
         // works when the enableScreenshotDiffPlugin flag is set in the config file
-        if(config.enableScreenshotDiffPlugin) {
+        if(this.config.enableScreenshotDiffPlugin) {
             allure.addAttachment('Base Image', fs.readFileSync(path.join(this.config.baseFolder, baseImage)), 'image/png');
             allure.addAttachment('Screenshot Image', fs.readFileSync(path.join(this.config.screenshotFolder, baseImage)), 'image/png');
             allure.addAttachment('Diff Image', fs.readFileSync(path.join(this.config.diffFolder, diffImage)), 'image/png');
@@ -150,7 +150,7 @@ class ResembleHelper extends Helper {
             // allure functionality
             // adds three attachments to the reporter to carry out the image difference pluggin
             // works when the enableScreenshotDiffPlugin flag is set in the config file
-            if(config.enableScreenshotDiffPlugin) {
+            if(this.config.enableScreenshotDiffPlugin) {
                 allure.addAttachment('Base Image', fs.readFileSync(path.join(this.config.baseFolder, baseImage)), 'image/png');
                 allure.addAttachment('Screenshot Image', fs.readFileSync(path.join(this.config.screenshotFolder, baseImage)), 'image/png');
                 allure.addAttachment('Diff Image', fs.readFileSync(path.join(this.config.diffFolder, diffImage)), 'image/png');
