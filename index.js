@@ -221,15 +221,14 @@ class ResembleHelper extends Helper {
 
         return boundingBox;
     }
-    {   
+    {
         const allure = codeceptjs.container.plugins('allure');
-        if(allure)
-            {
-                const outputFile = path.join(global.output_dir, fileName);
-                var misMatch = await this._fetchMisMatchPercentage(baseImage, options);
-                allure.addAttachment('screenshotDiff',fs.readFileSync(outputFile),'diff');
-                allure.addLabel('screenshotDiff',misMatch);
-            }
+        if(allure){
+            const outputFile = path.join(global.output_dir, fileName);
+            var misMatch = await this._fetchMisMatchPercentage(baseImage, options);
+            allure.addAttachment('screenshotDiff',fs.readFileSync(outputFile),'diff');
+            allure.addLabel('screenshotDiff',misMatch);
+        }
     }
 
 
