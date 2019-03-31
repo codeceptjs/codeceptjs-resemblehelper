@@ -6,6 +6,8 @@ const fs = require('fs');
 let assert = require('assert');
 const mkdirp = require('mkdirp');
 const getDirName = require('path').dirname;
+const screenshotOutputFolder= require('codeceptjs/lib/utils');
+
 
 /**
  * Resemble.js helper class for CodeceptJS, this allows screen comparison
@@ -91,6 +93,11 @@ class ResembleHelper extends Helper {
      * @returns {Promise<void>}
      */
     async seeVisualDiff(baseImage, options) {
+        const outputFile = screenshotOutputFolder(baseImage);
+        this.debug(`Screenshot is saving to ${outputFile}`);
+        const browser = this._getBrowser();
+        await browser.saveScreenshot(outputFile);
+  
         if (options == undefined)
         {
             options = {};
@@ -118,6 +125,11 @@ class ResembleHelper extends Helper {
      * @returns {Promise<void>}
      */
     async seeVisualDiffForElement(selector, baseImage, options){
+        const outputFile = screenshotOutputFolder(baseImage);
+        this.debug(`Screenshot is saving to ${outputFile}`);
+        const browser = this._getBrowser();
+        await browser.saveScreenshot(outputFile);
+  
 
         if (selector !== undefined)
         {
