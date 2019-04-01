@@ -222,13 +222,15 @@ class ResembleHelper extends Helper {
 
         return boundingBox;
     }
-    
-   {
+    {
+
       const allureReporter = Container.plugins('allure');
         if (allureReporter) {
           allureReporter.addAttachment('screenshotDiff', fs.readFileSync(path.join(this.config.diffFolder, fileName)), 'image/png');
         };
-   }
+   
+    }
+
     _getBrowser() {
         if (this.helpers['WebDriver']) {
             return this.helpers['WebDriver'].browser;
