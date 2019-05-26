@@ -109,7 +109,7 @@ class ResembleHelper extends Helper {
     }
 
     options.boundingBox = await this._getBoundingBox(selector);
-    var misMatch = await this._fetchMisMatchPercentage(baseImage, options);
+    const misMatch = await this._fetchMisMatchPercentage(baseImage, options);
     this.debug("MisMatch Percentage Calculated is " + misMatch);
     assert(misMatch <= options.tolerance, "MissMatch Percentage " + misMatch);
   }
@@ -120,7 +120,7 @@ class ResembleHelper extends Helper {
    * @param screenShotImage  Name of the screenshot Image (Screenshot Image Path is taken from Configuration)
    */
   async _prepareBaseImage(screenShotImage) {
-    var configuration = this.config;
+    const configuration = this.config;
 
     await this._createDir(configuration.baseFolder + screenShotImage);
 
@@ -177,8 +177,8 @@ class ResembleHelper extends Helper {
     } 
     
     if (this.helpers['WebDriverIO']) {
-      location = await browser.getLocation(selector);
-      size = await browser.getElementSize(selector);
+      location = await helper.browser.getLocation(selector);
+      size = await helper.browser.getElementSize(selector);
     }
 
     const bottom = size.height + location.y;
