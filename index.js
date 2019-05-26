@@ -1,4 +1,4 @@
- resemble = require("resemblejs");
+const resemble = require("resemblejs");
 const fs = require('fs');
 const assert = require('assert');
 const mkdirp = require('mkdirp');
