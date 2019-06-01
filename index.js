@@ -75,17 +75,21 @@ class ResembleHelper extends Helper {
    * @returns {Promise<void} 
    */
   async screenshotElement(selector, name) {
-    const helper = this._getHelper();
-    const configuration = this.config;
+    
+    if (this.helpers['Puppeteer']) {
+      const helper = this._getHelper();
+      const configuration = this.config;
 
-    await helper.waitForVisible(selector);
-    const els = await helper._locate(selector);
-    if (!els.length) throw new Error(`Element ${selector} couldn't be located`);
-    const el = els[0];
+      await helper.waitForVisible(selector);
+      const els = await helper._locate(selector);
+      if (!els.length) throw new Error(`Element ${selector} couldn't be located`);
+      const el = els[0];
 
-    await el.screenshot({
-      path: configuration.screenshotFolder + name + '.png'
-    });
+      await el.screenshot({
+        path: configuration.screenshotFolder + name + '.png'
+      });
+    }
+    else throw new Error("Method to be called only with Puppeteer. Other helpers not supported");
   }
 
   /**
