@@ -69,7 +69,12 @@ It is exactly same as `seeVisualDiff` function, only an additional `selector` CS
 > Note:
 `seeVisualDiffForElement` only works when the page for baseImage is open in the browser, so that webdriver can fetch coordinates of the provided selector
 
-
+Third one is the `screenshotElement` which basically takes screenshot of the element. Selector for the element must be provided.
+It saves the image in the output directory as mentioned in the config folder.
+This method only works with puppeteer.
+```
+I.screenshotElement("selectorForElement", "nameForImage");
+```
 
 Finally to use the helper in your test, you can write something like this:
 
@@ -96,3 +101,4 @@ Scenario('Compare CPU Usage Images', async (I) => {
     I.seeVisualDiffForElement("//div[@class='panel-container']", "Complete_Dashboard_Image.png", {prepareBaseImage: false, tolerance: 3});
 });
 ```
+

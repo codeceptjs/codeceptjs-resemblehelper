@@ -69,6 +69,29 @@ class ResembleHelper extends Helper {
   }
 
   /**
+   * Take screenshot of individual element.
+   * @param selector selector of the element to be screenshotted 
+   * @param name name of the image
+   * @returns {Promise<void>} 
+   */
+  async screenshotElement(selector, name) {
+    const helper = this._getHelper();
+    if(this.helpers['Puppeteer']){
+      const configuration = this.config;
+
+      await helper.waitForVisible(selector);
+      const els = await helper._locate(selector);
+      if (!els.length) throw new Error(`Element ${selector} couldn't be located`);
+      const el = els[0];
+
+      await el.screenshot({
+        path: configuration.screenshotFolder + name + '.png'
+      });
+    }
+    else throw new Error("Method only works with Puppeteer");
+  }
+
+  /**
    * Check Visual Difference for Base and Screenshot Image
    * @param baseImage         Name of the Base Image (Base Image path is taken from Configuration)
    * @param options           Options ex {prepareBaseImage: true, tolerance: 5} along with Resemble JS Options, read more here: https://github.com/rsmbl/Resemble.js
@@ -172,8 +195,8 @@ class ResembleHelper extends Helper {
     }
 
     if (this.helpers['WebDriver'] || this.helpers['Appium']) {
-      location = await ele.getLocation();
-      size = await ele.getSize();
+      location = await el.getLocation();
+      size = await el.getSize();
     } 
     
     if (this.helpers['WebDriverIO']) {
@@ -213,5 +236,4 @@ class ResembleHelper extends Helper {
     throw new Error('No matching helper found. Supported helpers: WebDriver/Appium/Puppeteer');
   }
 }
-
 module.exports = ResembleHelper;
