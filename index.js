@@ -75,9 +75,8 @@ class ResembleHelper extends Helper {
    * @returns {Promise<void} 
    */
   async screenshotElement(selector, name) {
-    
-    if (this.helpers['Puppeteer']) {
-      const helper = this._getHelper();
+    const helper = this._getHelper();
+    if(this.helpers['Puppeteer']){
       const configuration = this.config;
 
       await helper.waitForVisible(selector);
@@ -89,7 +88,7 @@ class ResembleHelper extends Helper {
         path: configuration.screenshotFolder + name + '.png'
       });
     }
-    else throw new Error("Method to be called only with Puppeteer. Other helpers not supported");
+    else throw new Error("Method only works with Puppeteer");
   }
 
   /**
@@ -196,8 +195,8 @@ class ResembleHelper extends Helper {
     }
 
     if (this.helpers['WebDriver'] || this.helpers['Appium']) {
-      location = await ele.getLocation();
-      size = await ele.getSize();
+      location = await el.getLocation();
+      size = await el.getSize();
     } 
     
     if (this.helpers['WebDriverIO']) {
@@ -223,6 +222,7 @@ class ResembleHelper extends Helper {
     if (this.helpers['Puppeteer']) {
       return this.helpers['Puppeteer'];
     }
+
     if (this.helpers['WebDriver']) {
       return this.helpers['WebDriver'];
     }
