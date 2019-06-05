@@ -72,7 +72,7 @@ class ResembleHelper extends Helper {
    * Take screenshot of individual element.
    * @param selector selector of the element to be screenshotted 
    * @param name name of the image
-   * @returns {Promise<void} 
+   * @returns {Promise<void>} 
    */
   async screenshotElement(selector, name) {
     const helper = this._getHelper();
@@ -236,5 +236,4 @@ class ResembleHelper extends Helper {
     throw new Error('No matching helper found. Supported helpers: WebDriver/Appium/Puppeteer');
   }
 }
-
 module.exports = ResembleHelper;

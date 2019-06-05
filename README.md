@@ -71,6 +71,7 @@ It is exactly same as `seeVisualDiff` function, only an additional `selector` CS
 
 Third one is the `screenshotElement` which basically takes screenshot of the element. Selector for the element must be provided.
 It saves the image in the output directory as mentioned in the config folder.
+This method only works with puppeteer.
 ```
 I.screenshotElement("selectorForElement", "nameForImage");
 ```
