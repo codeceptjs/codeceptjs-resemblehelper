@@ -102,3 +102,13 @@ Scenario('Compare CPU Usage Images', async (I) => {
 });
 ```
 
+Allure reports may also be generated directly from the tool.
+To do so, add 
+```
+"plugins": {
+	  "allure": {}
+}
+```
+in the config file.
+Set `enableScreenshotDiffPlugin` to true to attach the generated diff image to the report.
+Set `output` to where the generated report is to be stored. Default is the output directory of the project.

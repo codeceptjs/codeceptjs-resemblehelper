@@ -2,7 +2,9 @@ const resemble = require("resemblejs");
 const fs = require('fs');
 const assert = require('assert');
 const mkdirp = require('mkdirp');
-const getDirName = require('path').dirname;
+const path = require('path');
+const getDirName = path.dirname;
+
 
 /**
  * Resemble.js helper class for CodeceptJS, this allows screen comparison
@@ -92,6 +94,26 @@ class ResembleHelper extends Helper {
   }
 
   /**
+   * This method attaches image attachments of the base, screenshot and diff(if enabled) to
+   * the allure reporter  
+   */
+
+  async _addAttachment() {
+    this.allure = codeceptjs.container.plugins('allure');
+
+    if(this.plugins['allure']) {
+      this.allure.addAttachment('Base Image', fs.readFileSync(path.join(this.config.baseFolder, baseImage)), 'image/png');
+      this.allure.addAttachment('Screenshot Image', fs.readFileSync(path.join(this.config.screenshotFolder, baseImage)), 'image/png');
+      try {
+        if(this.plugins['allure'].enableScreenshotDiffPlugin)
+          this.allure.addAttachment('Diff Image', fs.readFileSync(path.join(this.config.diffFolder, baseImage)), 'image/png');
+      }catch(err) {
+        continue;
+      }
+    }
+  }
+
+  /**
    * Check Visual Difference for Base and Screenshot Image
    * @param baseImage         Name of the Base Image (Base Image path is taken from Configuration)
    * @param options           Options ex {prepareBaseImage: true, tolerance: 5} along with Resemble JS Options, read more here: https://github.com/rsmbl/Resemble.js
@@ -108,6 +130,9 @@ class ResembleHelper extends Helper {
     }
 
     const misMatch = await this._fetchMisMatchPercentage(baseImage, options);
+
+    this._addAttachment();
+
     this.debug("MisMatch Percentage Calculated is " + misMatch);
     assert(misMatch <= options.tolerance, "MissMatch Percentage " + misMatch);
   }
@@ -133,6 +158,9 @@ class ResembleHelper extends Helper {
 
     options.boundingBox = await this._getBoundingBox(selector);
     const misMatch = await this._fetchMisMatchPercentage(baseImage, options);
+
+    this._addAttachment();
+
     this.debug("MisMatch Percentage Calculated is " + misMatch);
     assert(misMatch <= options.tolerance, "MissMatch Percentage " + misMatch);
   }
