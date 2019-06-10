@@ -110,5 +110,5 @@ To do so, add
 }
 ```
 in the config file.
-Set `enableScreenshotDiffPlugin` to true to attach the generated diff image to the report.
+The attachments will be added only when the calulated mismatch is greater than the given tolerance.
 Set `output` to where the generated report is to be stored. Default is the output directory of the project.

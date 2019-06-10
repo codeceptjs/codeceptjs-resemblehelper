@@ -5,7 +5,6 @@ const mkdirp = require('mkdirp');
 const path = require('path');
 const getDirName = path.dirname;
 
-
 /**
  * Resemble.js helper class for CodeceptJS, this allows screen comparison
  * @author Puneet Kala
@@ -94,22 +93,21 @@ class ResembleHelper extends Helper {
   }
 
   /**
-   * This method attaches image attachments of the base, screenshot and diff(if enabled) to
-   * the allure reporter  
+   * This method attaches image attachments of the base, screenshot and diff to the allure reporter when the mismatch exceeds tolerance.
+   * @param baseImage
+   * @param misMatch
+   * @param tolerance
+   * @returns {Promise<void>}
    */
 
-  async _addAttachment() {
-    this.allure = codeceptjs.container.plugins('allure');
+  async _addAttachment(baseImage, misMatch, tolerance) {
+    const allure = codeceptjs.container.plugins('allure');
+    const diffImage = "Diff_" + baseImage.split(".")[0] + ".png";
 
-    if(this.plugins['allure']) {
-      this.allure.addAttachment('Base Image', fs.readFileSync(path.join(this.config.baseFolder, baseImage)), 'image/png');
-      this.allure.addAttachment('Screenshot Image', fs.readFileSync(path.join(this.config.screenshotFolder, baseImage)), 'image/png');
-      try {
-        if(this.plugins['allure'].enableScreenshotDiffPlugin)
-          this.allure.addAttachment('Diff Image', fs.readFileSync(path.join(this.config.diffFolder, baseImage)), 'image/png');
-      }catch(err) {
-        continue;
-      }
+    if(allure && misMatch >= tolerance) {
+      allure.addAttachment('Base Image', fs.readFileSync(path.join(this.config.baseFolder, baseImage)), 'image/png');
+      allure.addAttachment('Screenshot Image', fs.readFileSync(path.join(this.config.screenshotFolder, baseImage)), 'image/png');
+      allure.addAttachment('Diff Image', fs.readFileSync(path.join(this.config.diffFolder, diffImage)), 'image/png');
     }
   }
 
@@ -130,8 +128,8 @@ class ResembleHelper extends Helper {
     }
 
     const misMatch = await this._fetchMisMatchPercentage(baseImage, options);
-
-    this._addAttachment();
+    
+    this._addAttachment(baseImage, misMatch, options.tolerance);
 
     this.debug("MisMatch Percentage Calculated is " + misMatch);
     assert(misMatch <= options.tolerance, "MissMatch Percentage " + misMatch);
@@ -159,7 +157,7 @@ class ResembleHelper extends Helper {
     options.boundingBox = await this._getBoundingBox(selector);
     const misMatch = await this._fetchMisMatchPercentage(baseImage, options);
 
-    this._addAttachment();
+    this._addAttachment(baseImage, misMatch, options.tolerance);
 
     this.debug("MisMatch Percentage Calculated is " + misMatch);
     assert(misMatch <= options.tolerance, "MissMatch Percentage " + misMatch);
