@@ -2,7 +2,8 @@ const resemble = require("resemblejs");
 const fs = require('fs');
 const assert = require('assert');
 const mkdirp = require('mkdirp');
-const getDirName = require('path').dirname;
+const path = require('path');
+const getDirName = path.dirname;
 
 /**
  * Resemble.js helper class for CodeceptJS, this allows screen comparison
@@ -92,6 +93,25 @@ class ResembleHelper extends Helper {
   }
 
   /**
+   * This method attaches image attachments of the base, screenshot and diff to the allure reporter when the mismatch exceeds tolerance.
+   * @param baseImage
+   * @param misMatch
+   * @param tolerance
+   * @returns {Promise<void>}
+   */
+
+  async _addAttachment(baseImage, misMatch, tolerance) {
+    const allure = codeceptjs.container.plugins('allure');
+    const diffImage = "Diff_" + baseImage.split(".")[0] + ".png";
+
+    if(allure && misMatch >= tolerance) {
+      allure.addAttachment('Base Image', fs.readFileSync(path.join(this.config.baseFolder, baseImage)), 'image/png');
+      allure.addAttachment('Screenshot Image', fs.readFileSync(path.join(this.config.screenshotFolder, baseImage)), 'image/png');
+      allure.addAttachment('Diff Image', fs.readFileSync(path.join(this.config.diffFolder, diffImage)), 'image/png');
+    }
+  }
+
+  /**
    * Check Visual Difference for Base and Screenshot Image
    * @param baseImage         Name of the Base Image (Base Image path is taken from Configuration)
    * @param options           Options ex {prepareBaseImage: true, tolerance: 5} along with Resemble JS Options, read more here: https://github.com/rsmbl/Resemble.js
@@ -108,6 +128,9 @@ class ResembleHelper extends Helper {
     }
 
     const misMatch = await this._fetchMisMatchPercentage(baseImage, options);
+
+    this._addAttachment(baseImage, misMatch, options.tolerance);
+
     this.debug("MisMatch Percentage Calculated is " + misMatch);
     assert(misMatch <= options.tolerance, "MissMatch Percentage " + misMatch);
   }
@@ -133,6 +156,9 @@ class ResembleHelper extends Helper {
 
     options.boundingBox = await this._getBoundingBox(selector);
     const misMatch = await this._fetchMisMatchPercentage(baseImage, options);
+
+    this._addAttachment(baseImage, misMatch, options.tolerance);
+
     this.debug("MisMatch Percentage Calculated is " + misMatch);
     assert(misMatch <= options.tolerance, "MissMatch Percentage " + misMatch);
   }

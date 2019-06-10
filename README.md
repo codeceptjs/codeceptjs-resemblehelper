@@ -102,3 +102,12 @@ Scenario('Compare CPU Usage Images', async (I) => {
 });
 ```
 
+Allure reports may also be generated directly from the tool. To do so, add
+```
+"plugins": {
+	  "allure": {}
+}
+```
+in the config file.
+The attachments will be added to the report only when the calulated mismatch is greater than the given tolerance. 
+Set `output` to where the generated report is to be stored. Default is the output directory of the project.
