@@ -102,3 +102,6 @@ Scenario('Compare CPU Usage Images', async (I) => {
 });
 ```
 
+### Known Issues:
+
+> Issue in Windows where the image comparison is not carried out, and therefore no Mismatch Percentage is shown. See 'loadImageData' function in resemble.js
