@@ -9,7 +9,7 @@
   "dependencies": {
     "assert": "^1.4.1",
     "canvas": "^2.2.0",
-    "googleapis": "^39.2.0",
+    "aws-sdk": "^2.476.0",
     "mkdirp": "^0.5.1",
     "mz": "^2.7.0",
     "path": "^0.12.7",
