@@ -102,7 +102,7 @@ Scenario('Compare CPU Usage Images', async (I) => {
 });
 ```
 The generated output and diff images can also be directly uploaded to AWS S3 by using the `upload` method which will upload both the output as well as diff image generated.
-The files will be uploaded to a folder named output inside of the bucket.
+The screenshot file will be uploaded to a folder named output and the diff file(if it exists) inside a folder named diff inside the bucket.
 ```
 I.upload("AccessKeyId", "secretAccessKey", "region", "bucketName", "baseImage");
 ```
@@ -112,6 +112,7 @@ Moreover, the base images can also be downloaded from S3 with the `download` met
 I.download("AccessKeyId", "secretAccessKey", "region", "bucketName", "baseImage");
 ```
 You will need to store these base images inside a folder named base inside the bucket.
+Make sure to give correct file type extensions to both the `I.upload` and `I.download` methods.
 
 
 
