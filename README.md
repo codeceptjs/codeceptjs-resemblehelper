@@ -72,13 +72,13 @@ It is exactly same as `seeVisualDiff` function, only an additional `selector` CS
 Third one is the `screenshotElement` which basically takes screenshot of the element. Selector for the element must be provided.
 It saves the image in the output directory as mentioned in the config folder.
 This method only works with puppeteer.
-```
+```js
 I.screenshotElement("selectorForElement", "nameForImage");
 ```
 
 Finally to use the helper in your test, you can write something like this:
 
-```
+```js
 Feature('to verify monitoried Remote Db instances');
 
 Scenario('Open the System Overview Dashboard', async (I, adminPage, loginPage) => {
@@ -101,18 +101,32 @@ Scenario('Compare CPU Usage Images', async (I) => {
     I.seeVisualDiffForElement("//div[@class='panel-container']", "Complete_Dashboard_Image.png", {prepareBaseImage: false, tolerance: 3});
 });
 ```
-The generated output and diff images can also be directly uploaded to AWS S3 by using the `upload` method which will upload both the output as well as diff image generated.
-The screenshot file will be uploaded to a folder named output and the diff file(if it exists) inside a folder named diff inside the bucket.
-```
-I.upload("AccessKeyId", "secretAccessKey", "region", "bucketName", "baseImage");
-```
 
-Moreover, the base images can also be downloaded from S3 with the `download` method.
+AWS S3 support to upload and download various images is also provided.
+It can be used by adding the *aws* code inside `"ResembleHelper"` in the `"helpers"` section in config file. The final result should look like:    
+```json
+{
+    "helpers": {
+        "ResembleHelper" : {
+            "require": "codeceptjs-resemblehelper",
+            "screenshotFolder" : "<location of output folder>",
+            "baseFolder": "<location of base folder>",
+            "diffFolder": "<location of diff folder>",
+            "aws": {
+                "accessKeyId" : "<Your AccessKeyId>",
+                "secretAccessKey": "<Your secretAccessKey>",
+                "region": "<Region of Bucket>",
+                "bucketName": "<Bucket Name>"
+            }
+        }
+    }
+}
 ```
-I.download("AccessKeyId", "secretAccessKey", "region", "bucketName", "baseImage");
-```
-You will need to store these base images inside a folder named base inside the bucket.
-Make sure to give correct file type extensions to both the `I.upload` and `I.download` methods.
+When this option has been provided, the helper will download the base image from the S3 bucket.
+This base image has to be located inside a folder named "*base*".
+The resultant output image will be uploaded in a folder named "*output*" and diff image will be uploaded to a folder named "*diff*" in the S3 bucket.
+If the `prepareBaseImage` option is marked `true`, then the generated base image will be uploaded to a folder named "*base*" in the S3 bucket.
+>Note: The tests may take a bit longer to run when the AWS configuration is provided as determined by the internet speed to upload/download images.
 
 
 
