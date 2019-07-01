@@ -102,6 +102,18 @@ Scenario('Compare CPU Usage Images', async (I) => {
 });
 ```
 
+### Allure Reporter
+Allure reports may also be generated directly from the tool. To do so, add
+```
+"plugins": {
+	  "allure": {}
+}
+```
+in the config file.
+The attachments will be added to the report only when the calulated mismatch is greater than the given tolerance. 
+Set `output` to where the generated report is to be stored. Default is the output directory of the project.
+
+### AWS Support
 AWS S3 support to upload and download various images is also provided.
 It can be used by adding the *aws* code inside `"ResembleHelper"` in the `"helpers"` section in config file. The final result should look like:    
 ```json

@@ -93,6 +93,25 @@ class ResembleHelper extends Helper {
   }
 
   /**
+   * This method attaches image attachments of the base, screenshot and diff to the allure reporter when the mismatch exceeds tolerance.
+   * @param baseImage
+   * @param misMatch
+   * @param tolerance
+   * @returns {Promise<void>}
+   */
+
+  async _addAttachment(baseImage, misMatch, tolerance) {
+    const allure = codeceptjs.container.plugins('allure');
+    const diffImage = "Diff_" + baseImage.split(".")[0] + ".png";
+
+    if(allure !== undefined && misMatch >= tolerance) {
+      allure.addAttachment('Base Image', fs.readFileSync(this.config.baseFolder + baseImage), 'image/png');
+      allure.addAttachment('Screenshot Image', fs.readFileSync(this.config.screenshotFolder + baseImage), 'image/png');
+      allure.addAttachment('Diff Image', fs.readFileSync(this.config.diffFolder + diffImage), 'image/png');
+    }
+  }  
+
+  /**
    * This method uploads the diff and screenshot images into the bucket with diff image under bucketName/diff/diffImage and the screenshot image as
    * bucketName/output/ssImage
    * @param accessKeyId
@@ -216,6 +235,8 @@ class ResembleHelper extends Helper {
 
     const misMatch = await this._fetchMisMatchPercentage(baseImage, options);
 
+    this._addAttachment(baseImage, misMatch, options.tolerance);
+
     if(awsC !== undefined) {
         let ifUpload = options.prepareBaseImage === false ? false : true;
         await this._upload(awsC.accessKeyId, awsC.secretAccessKey, awsC.region, awsC.bucketName, baseImage, ifUpload)
@@ -253,6 +274,8 @@ class ResembleHelper extends Helper {
     options.boundingBox = await this._getBoundingBox(selector);
     const misMatch = await this._fetchMisMatchPercentage(baseImage, options);
 
+    this._addAttachment(baseImage, misMatch, options.tolerance);
+    
     if(awsC !== undefined) {
         let ifUpload = options.prepareBaseImage === false ? false : true;
         await this._upload(awsC.accessKeyId, awsC.secretAccessKey, awsC.region, awsC.bucketName, baseImage, ifUpload)
