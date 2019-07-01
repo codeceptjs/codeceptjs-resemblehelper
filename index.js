@@ -2,8 +2,8 @@ const resemble = require("resemblejs");
 const fs = require('fs');
 const assert = require('assert');
 const mkdirp = require('mkdirp');
-const path = require('path');
-const getDirName = path.dirname;
+const getDirName = require('path').dirname;
+const AWS = require('aws-sdk');
 
 /**
  * Resemble.js helper class for CodeceptJS, this allows screen comparison
@@ -104,11 +104,111 @@ class ResembleHelper extends Helper {
     const allure = codeceptjs.container.plugins('allure');
     const diffImage = "Diff_" + baseImage.split(".")[0] + ".png";
 
-    if(allure && misMatch >= tolerance) {
-      allure.addAttachment('Base Image', fs.readFileSync(path.join(this.config.baseFolder, baseImage)), 'image/png');
-      allure.addAttachment('Screenshot Image', fs.readFileSync(path.join(this.config.screenshotFolder, baseImage)), 'image/png');
-      allure.addAttachment('Diff Image', fs.readFileSync(path.join(this.config.diffFolder, diffImage)), 'image/png');
+    if(allure !== undefined && misMatch >= tolerance) {
+      allure.addAttachment('Base Image', fs.readFileSync(this.config.baseFolder + baseImage), 'image/png');
+      allure.addAttachment('Screenshot Image', fs.readFileSync(this.config.screenshotFolder + baseImage), 'image/png');
+      allure.addAttachment('Diff Image', fs.readFileSync(this.config.diffFolder + diffImage), 'image/png');
     }
+  }  
+
+  /**
+   * This method uploads the diff and screenshot images into the bucket with diff image under bucketName/diff/diffImage and the screenshot image as
+   * bucketName/output/ssImage
+   * @param accessKeyId
+   * @param secretAccessKey
+   * @param region
+   * @param bucketName
+   * @param baseImage
+   * @param ifBaseImage - tells if the prepareBaseImage is true or false. If false, then it won't upload the baseImage.
+   * @returns {Promise<void>}
+   */
+
+  async _upload(accessKeyId, secretAccessKey, region, bucketName, baseImage, ifBaseImage) {
+      console.log("Starting Upload... ");
+      const s3 = new AWS.S3({
+          accessKeyId: accessKeyId,
+          secretAccessKey: secretAccessKey,
+          region: region
+      });
+      fs.readFile(this.config.screenshotFolder + baseImage, (err, data) => {
+          if(err) throw err;
+          let base64data = new Buffer(data, 'binary');
+          const params = {
+              Bucket: bucketName,
+              Key: `output/${baseImage}`,
+              Body: base64data
+          };
+          s3.upload(params, (uerr, data) => {
+              if(uerr) throw uerr;
+              console.log(`Screenshot Image uploaded successfully at ${data.Location}`);
+          });
+      });
+      fs.readFile(this.config.diffFolder + "Diff_" + baseImage, (err, data) => {
+          if(err) console.log("Diff image not generated");
+          else {
+              let base64data = new Buffer(data, 'binary');
+              const params = {
+                  Bucket: bucketName,
+                  Key: `diff/Diff_${baseImage}`,
+                  Body: base64data
+              };
+              s3.upload(params, (uerr, data) => {
+                  if(uerr) throw uerr;
+                  console.log(`Diff Image uploaded successfully at ${data.Location}`)
+              });
+          }
+      });
+      if(ifBaseImage) {
+          fs.readFile(this.config.baseFolder + baseImage, (err, data) => {
+              if(err) throw err;
+              else {
+                  let base64data = new Buffer(data, 'binary');
+                  const params = {
+                      Bucket: bucketName,
+                      Key: `base/${baseImage}`,
+                      Body: base64data
+                  };
+                  s3.upload(params, (uerr, data) => {
+                      if(uerr) throw uerr;
+                      console.log(`Base Image uploaded at ${data.Location}`)
+                  });
+              }
+          });
+      }
+      else {
+          console.log("Not Uploading base Image");
+      }
+  }
+
+  /**
+   * This method downloads base images from specified bucket into the base folder as mentioned in config file.
+   * @param accessKeyId
+   * @param secretAccessKey
+   * @param region
+   * @param bucketName
+   * @param baseImage
+   * @returns {Promise<void>}
+   */
+
+  _download(accessKeyId, secretAccessKey, region, bucketName, baseImage) {
+      console.log("Starting Download...");
+      const s3 = new AWS.S3({
+          accessKeyId: accessKeyId,
+          secretAccessKey: secretAccessKey,
+          region: region
+      });
+      const params = {
+          Bucket: bucketName,
+          Key: `base/${baseImage}`
+      };
+      return new Promise((resolve, reject) => {
+          s3.getObject(params, (err, data) => {
+              if(err) console.error(err);
+              console.log(this.config.baseFolder + baseImage);
+              fs.writeFileSync(this.config.baseFolder + baseImage, data.Body);
+              resolve("File Downloaded Successfully");
+          });
+      });
   }
 
   /**
@@ -123,6 +223,12 @@ class ResembleHelper extends Helper {
       options.tolerance = 0;
     }
 
+    const awsC = this.config.aws;
+
+    if (awsC !== undefined && options.prepareBaseImage === false) {
+        await this._download(awsC.accessKeyId, awsC.secretAccessKey, awsC.region, awsC.bucketName, baseImage);
+    }
+
     if (options.prepareBaseImage !== undefined && options.prepareBaseImage) {
       await this._prepareBaseImage(baseImage);
     }
@@ -130,6 +236,11 @@ class ResembleHelper extends Helper {
     const misMatch = await this._fetchMisMatchPercentage(baseImage, options);
 
     this._addAttachment(baseImage, misMatch, options.tolerance);
+
+    if(awsC !== undefined) {
+        let ifUpload = options.prepareBaseImage === false ? false : true;
+        await this._upload(awsC.accessKeyId, awsC.secretAccessKey, awsC.region, awsC.bucketName, baseImage, ifUpload)
+    }
 
     this.debug("MisMatch Percentage Calculated is " + misMatch);
     assert(misMatch <= options.tolerance, "MissMatch Percentage " + misMatch);
@@ -150,6 +261,12 @@ class ResembleHelper extends Helper {
       options.tolerance = 0;
     }
 
+    const awsC = this.config.aws;
+
+    if (awsC !== undefined && options.prepareBaseImage === false) {
+        await this._download(awsC.accessKeyId, awsC.secretAccessKey, awsC.region, awsC.bucketName, baseImage);
+    }
+
     if (options.prepareBaseImage !== undefined && options.prepareBaseImage) {
       await this._prepareBaseImage(baseImage);
     }
@@ -158,6 +275,11 @@ class ResembleHelper extends Helper {
     const misMatch = await this._fetchMisMatchPercentage(baseImage, options);
 
     this._addAttachment(baseImage, misMatch, options.tolerance);
+    
+    if(awsC !== undefined) {
+        let ifUpload = options.prepareBaseImage === false ? false : true;
+        await this._upload(awsC.accessKeyId, awsC.secretAccessKey, awsC.region, awsC.bucketName, baseImage, ifUpload)
+    }
 
     this.debug("MisMatch Percentage Calculated is " + misMatch);
     assert(misMatch <= options.tolerance, "MissMatch Percentage " + misMatch);
