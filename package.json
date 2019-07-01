@@ -12,7 +12,8 @@
     "mz": "^2.7.0",
     "resemblejs": "^3.0.0",
     "mkdirp": "^0.5.1",
-    "path": "^0.12.7"
+    "path": "^0.12.7",
+    "aws-sdk": "^2.476.0"
   },
   "keywords": [
     "codeceptJS",
