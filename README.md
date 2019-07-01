@@ -128,5 +128,6 @@ The resultant output image will be uploaded in a folder named "*output*" and dif
 If the `prepareBaseImage` option is marked `true`, then the generated base image will be uploaded to a folder named "*base*" in the S3 bucket.
 >Note: The tests may take a bit longer to run when the AWS configuration is provided as determined by the internet speed to upload/download images.
 
+### Known Issues:
 
-
+> Issue in Windows where the image comparison is not carried out, and therefore no Mismatch Percentage is shown. See 'loadImageData' function in resemble.js
