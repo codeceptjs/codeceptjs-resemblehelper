@@ -48,6 +48,9 @@ class ResembleHelper extends Helper {
               if (err) {
                 throw new Error(this.err);
               }
+              else {
+                this.debug(this.config.diffFolder + diffImage + '.png');
+              }
             });
           }
         }
