@@ -26,11 +26,11 @@ class ResembleHelper extends Helper {
     image2 = this.config.screenshotFolder + image2;
 
     return new Promise((resolve, reject) => {
-      if (options.boundingBox !== undefined) {
-        resemble.outputSettings({
-          boundingBox: options.boundingBox
-        });
-      }
+      
+      resemble.outputSettings({
+        boundingBox: options.boundingBox,
+        ignoredBox: options.ignoredBox
+      });
 
       this.debug("Tolerance Level Provided " + options.tolerance);
       const tolerance = options.tolerance;
