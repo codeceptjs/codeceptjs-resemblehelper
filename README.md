@@ -71,10 +71,10 @@ It is exactly same as `seeVisualDiff` function, only an additional `selector` CS
 
 Third one is the `screenshotElement` which basically takes screenshot of the element. Selector for the element must be provided.
 It saves the image in the output directory as mentioned in the config folder.
-This method only works with puppeteer.
 ```js
 I.screenshotElement("selectorForElement", "nameForImage");
 ```
+>Note: This method only works with puppeteer.
 
 Finally to use the helper in your test, you can write something like this:
 
@@ -101,6 +101,22 @@ Scenario('Compare CPU Usage Images', async (I) => {
     I.seeVisualDiffForElement("//div[@class='panel-container']", "Complete_Dashboard_Image.png", {prepareBaseImage: false, tolerance: 3});
 });
 ```
+
+### Ignored Box
+You can also exclude part of the image from comparison, by specifying the excluded area in pixels from the top left.
+Just declare an object and pass it options as `ignoredBox`:
+```
+const box = {
+    left: 0,
+    top: 10,
+    right: 0,
+    bottom: 10
+};
+
+I.seeVisualDiff("image.png", {prepareBaseImage: true, tolerance: 1, ignoredBox: box});
+```
+After this, that specific mentioned part will be ignored while comparison.
+This works with both `seeVisualDiff` and `seeVisualDiffForElement`.
 
 ### Allure Reporter
 Allure reports may also be generated directly from the tool. To do so, add
