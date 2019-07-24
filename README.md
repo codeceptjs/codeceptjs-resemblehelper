@@ -101,10 +101,11 @@ Scenario('Compare CPU Usage Images', async (I) => {
     I.seeVisualDiffForElement("//div[@class='panel-container']", "Complete_Dashboard_Image.png", {prepareBaseImage: false, tolerance: 3});
 });
 ```
+>Note: `seeVisualDiff` and `seeVisualDiffElement` work only when the dimensions of the screenshot as well as the base image are same so as to avoid unexpected results.
 
 ### Ignored Box
 You can also exclude part of the image from comparison, by specifying the excluded area in pixels from the top left.
-Just declare an object and pass it options as `ignoredBox`:
+Just declare an object and pass it in options as `ignoredBox`:
 ```
 const box = {
     left: 0,
