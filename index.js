@@ -4,6 +4,7 @@ const assert = require('assert');
 const mkdirp = require('mkdirp');
 const getDirName = require('path').dirname;
 const AWS = require('aws-sdk');
+const path = require('path');
 
 /**
  * Resemble.js helper class for CodeceptJS, this allows screen comparison
@@ -50,7 +51,8 @@ class ResembleHelper extends Helper {
                 throw new Error(this.err);
               }
               else {
-                this.debug(this.config.diffFolder + diffImage + '.png');
+                  const diffImagePath = path.join(process.cwd(), this.config.diffFolder + diffImage + '.png');
+                  this.debug("Diff Image File Saved to: " + diffImagePath);
               }
             });
           }
