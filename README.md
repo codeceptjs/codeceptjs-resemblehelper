@@ -1,13 +1,13 @@
 # codeceptjs-resemblehelper
-Helper for resemble.js, used for Image comparison in Tests with WebdriverIO
+Helper for resemble.js, used for image comparison in tests with WebdriverIO.
 
-codeceptjs-resemblehelper is [CodeceptJS](https://codecept.io/) helper which can be used to compare screenshots and make the tests fail/pass based on the tolerance allowed
+codeceptjs-resemblehelper is a [CodeceptJS](https://codecept.io/) helper which can be used to compare screenshots and make the tests fail/pass based on the tolerance allowed.
 
 If two screenshot comparisons have difference greater then the tolerance provided, the test will fail.
 
 NPM package: https://www.npmjs.com/package/codeceptjs-resemblehelper
 
-To install the package, just run `npm install codeceptjs-resemblehelper`
+To install the package, just run `npm install codeceptjs-resemblehelper`.
 
 ### Configuration
 
@@ -27,21 +27,20 @@ Example:
    }
 }
 ```
+
 To use the Helper, users must provide the three parameters:
 
-`screenshotFolder` : This will always have the same value as `output` in Codecept configuration, this is the folder where webdriverIO
-saves a screenshot when using `I.saveScreenshot` method
+`screenshotFolder`: This will always have the same value as `output` in CodeceptJS configuration, this is the folder where WebdriverIO saves a screenshot when using `I.saveScreenshot` method.
 
-`baseFolder`: This is the folder for base images, which will be used with screenshot for comparison
+`baseFolder`: This is the folder for base images, which will be used with screenshot for comparison.
 
-`diffFolder`: This will the folder where resemble would try to store the difference image, which can be viewed later,
+`diffFolder`: This will the folder where resemble would try to store the difference image, which can be viewed later.
 
 Usage, these are major functions that help in visual testing
 
 First one is the `seeVisualDiff` which basically takes two parameters
-1) `baseImage` Name of the base image, this will be the image used for comparison with the screenshot image,
-it is mandatory to have the same image file names for base and screenshot image
-2) `options` options can be passed which include `prepaseBaseImage` and `tolerance`
+1) `baseImage` Name of the base image, this will be the image used for comparison with the screenshot image. It is mandatory to have the same image file names for base and screenshot image.
+2) `options` options can be passed which include `prepaseBaseImage` and `tolerance`.
 
 ```js
     /**
@@ -52,7 +51,7 @@ it is mandatory to have the same image file names for base and screenshot image
      */
     async seeVisualDiff(baseImage, options) {}
 ```
-Second one is the `seeVisualDiffForElement` which basically compares elements on the screenshot, Selector for element must be provided
+Second one is the `seeVisualDiffForElement` which basically compares elements on the screenshot, selector for element must be provided.
 
 It is exactly same as `seeVisualDiff` function, only an additional `selector` CSS|XPath|ID locators is provided
 ```js
@@ -67,14 +66,14 @@ It is exactly same as `seeVisualDiff` function, only an additional `selector` CS
     async seeVisualDiffForElement(selector, baseImage, options){}
 ```
 > Note:
-`seeVisualDiffForElement` only works when the page for baseImage is open in the browser, so that webdriver can fetch coordinates of the provided selector
+`seeVisualDiffForElement` only works when the page for baseImage is open in the browser, so that WebdriverIO can fetch coordinates of the provided selector.
 
-Third one is the `screenshotElement` which basically takes screenshot of the element. Selector for the element must be provided.
-It saves the image in the output directory as mentioned in the config folder.
+Third one is the `screenshotElement` which basically takes screenshot of the element. Selector for the element must be provided. It saves the image in the output directory as mentioned in the config folder.
+
 ```js
 I.screenshotElement("selectorForElement", "nameForImage");
 ```
->Note: This method only works with puppeteer.
+> Note: This method only works with puppeteer.
 
 Finally to use the helper in your test, you can write something like this:
 
@@ -101,7 +100,7 @@ Scenario('Compare CPU Usage Images', async (I) => {
     I.seeVisualDiffForElement("//div[@class='panel-container']", "Complete_Dashboard_Image.png", {prepareBaseImage: false, tolerance: 3});
 });
 ```
->Note: `seeVisualDiff` and `seeVisualDiffElement` work only when the dimensions of the screenshot as well as the base image are same so as to avoid unexpected results.
+> Note: `seeVisualDiff` and `seeVisualDiffElement` work only when the dimensions of the screenshot as well as the base image are same so as to avoid unexpected results.
 
 ### Ignored Box
 You can also exclude part of the image from comparison, by specifying the excluded area in pixels from the top left.
@@ -117,15 +116,17 @@ const box = {
 I.seeVisualDiff("image.png", {prepareBaseImage: true, tolerance: 1, ignoredBox: box});
 ```
 After this, that specific mentioned part will be ignored while comparison.
-This works with both `seeVisualDiff` and `seeVisualDiffForElement`.
+This works for `seeVisualDiff` and `seeVisualDiffForElement`.
 
 ### Allure Reporter
 Allure reports may also be generated directly from the tool. To do so, add
+
 ```
 "plugins": {
 	  "allure": {}
 }
 ```
+
 in the config file.
 The attachments will be added to the report only when the calulated mismatch is greater than the given tolerance. 
 Set `output` to where the generated report is to be stored. Default is the output directory of the project.
@@ -155,7 +156,7 @@ When this option has been provided, the helper will download the base image from
 This base image has to be located inside a folder named "*base*".
 The resultant output image will be uploaded in a folder named "*output*" and diff image will be uploaded to a folder named "*diff*" in the S3 bucket.
 If the `prepareBaseImage` option is marked `true`, then the generated base image will be uploaded to a folder named "*base*" in the S3 bucket.
->Note: The tests may take a bit longer to run when the AWS configuration is provided as determined by the internet speed to upload/download images.
+> Note: The tests may take a bit longer to run when the AWS configuration is provided as determined by the internet speed to upload/download images.
 
 ### Known Issues:
 
