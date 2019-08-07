@@ -84,15 +84,13 @@ class ResembleHelper extends Helper {
   async screenshotElement(selector, name) {
     const helper = this._getHelper();
     if(this.helpers['Puppeteer']){
-      const configuration = this.config;
-
       await helper.waitForVisible(selector);
       const els = await helper._locate(selector);
       if (!els.length) throw new Error(`Element ${selector} couldn't be located`);
       const el = els[0];
 
       await el.screenshot({
-        path: configuration.screenshotFolder + name + '.png'
+        path: global.output_dir + "/" + name + '.png'
       });
     }
     else throw new Error("Method only works with Puppeteer");
@@ -230,6 +228,7 @@ class ResembleHelper extends Helper {
     }
 
     const awsC = this.config.aws;
+    this.config.screenshotFolder = global.output_dir + "/";
 
     if (awsC !== undefined && options.prepareBaseImage === false) {
         await this._download(awsC.accessKeyId, awsC.secretAccessKey, awsC.region, awsC.bucketName, baseImage);
@@ -268,6 +267,7 @@ class ResembleHelper extends Helper {
     }
 
     const awsC = this.config.aws;
+    this.config.screenshotFolder = global.output_dir + "/";
 
     if (awsC !== undefined && options.prepareBaseImage === false) {
         await this._download(awsC.accessKeyId, awsC.secretAccessKey, awsC.region, awsC.bucketName, baseImage);
