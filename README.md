@@ -32,13 +32,9 @@ To use the helper, users must provide the three parameters:
 
 ### I.**`seeVisualDiff`**( )
 
-Parameters:  
-1. `baseImage`, Name of the base image, this will be the image used for comparison with the screenshot image, it is mandatory to have the same image file names for base and screenshot image
-2. `options` can be passed as an object, which include `prepaseBaseImage` and `tolerance`
-
 ```js
     /**
-     * Check for visual difference in base and screenshot image.
+     * Check for visual difference between base and screenshot image.
      * 
      * @param baseImage         Name of images to compare (paths are taken from config). There needs to be a file with the name @param baseImage in both paths.
      * @param options           Options e.g.: { prepareBaseImage: true, tolerance: 5 } along with ResembleJS options, read more here: https://github.com/rsmbl/Resemble.js.
