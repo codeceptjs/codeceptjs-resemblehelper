@@ -30,7 +30,7 @@ To use the helper, users must provide the three parameters:
 
 ## Usage
 
-### I.**`seeVisualDiff`**( )
+### I.**`seeVisualDiff`**()
 
 ```js
     /**
