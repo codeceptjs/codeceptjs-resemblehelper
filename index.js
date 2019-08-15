@@ -40,7 +40,7 @@ class ResembleHelper extends Helper {
         if (err) {
           reject(err);
         } else {
-          if(!data.isSameDimensions) throw new Error("The images are not of same dimensions. Please use images of same dimensions so as to avoid any unexpected results.")
+          if(!data.isSameDimensions) reject(new Error("The images are not of same dimensions. Please use images of same dimensions so as to avoid any unexpected results."));
           resolve(data);
           if (data.misMatchPercentage >= tolerance) {
             mkdirp(getDirName(this.config.diffFolder + diffImage), function (err) {
