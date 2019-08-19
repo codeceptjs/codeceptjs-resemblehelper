@@ -76,13 +76,12 @@ class ResembleHelper extends Helper {
   /**
    * Take screenshot of individual element.
    * @param selector selector of the element to be screenshotted 
-   * @param name name of the image
+   * @param name (including path) name of the image
    * @returns {Promise<void>} 
    */
   async screenshotElement(selector, name) {
     const helper = this._getHelper();
     if(this.helpers['Puppeteer']){
-      const configuration = this.config;
 
       await helper.waitForVisible(selector);
       const els = await helper._locate(selector);
@@ -90,17 +89,16 @@ class ResembleHelper extends Helper {
       const el = els[0];
 
       await el.screenshot({
-        path: configuration.screenshotFolder + name + '.png'
+        path: name + '.png'
       });
     } else if (this.helpers['WebDriver']) {
-        const configuration = this.config;
 
         await helper.waitForVisible(selector);
         const els = await helper._locate(selector);
         if (!els.length) throw new Error(`Element ${selector} couldn't be located`);
         const el = els[0];
 
-        await el.saveScreenshot(configuration.screenshotFolder + name + '.png');
+        await el.saveScreenshot(name + '.png');
     }
     else throw new Error("Method only works with Puppeteer or Webdriver");
   }
