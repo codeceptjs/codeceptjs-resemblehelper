@@ -94,8 +94,17 @@ class ResembleHelper extends Helper {
       await el.screenshot({
         path: configuration.screenshotFolder + name + '.png'
       });
+    } else if (this.helpers['WebDriver']) {
+        const configuration = this.config;
+
+        await helper.waitForVisible(selector);
+        const els = await helper._locate(selector);
+        if (!els.length) throw new Error(`Element ${selector} couldn't be located`);
+        const el = els[0];
+
+        await el.saveScreenshot(configuration.screenshotFolder + name + '.png');
     }
-    else throw new Error("Method only works with Puppeteer");
+    else throw new Error("Method only works with Puppeteer or Webdriver");
   }
 
   /**
