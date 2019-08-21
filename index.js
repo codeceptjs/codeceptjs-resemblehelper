@@ -16,15 +16,14 @@ class ResembleHelper extends Helper {
   /**
    * Compare Images
    * 
-   * @param image1
-   * @param image2
+   * @param image
    * @param diffImage
    * @param options
    * @returns {Promise<any | never>}
    */
-  async _compareImages(image1, image2, diffImage, options) {
-    image1 = this.config.baseFolder + image1;
-    image2 = this.config.screenshotFolder + image2;
+  async _compareImages(image, diffImage, options) {
+    const image1 = this.config.baseFolder + image;
+    const image2 = this.config.screenshotFolder + image;
 
     // check whether the base and the screenshot images are present.
     fs.access(image1, fs.constants.F_OK | fs.constants.W_OK, (err) => {
@@ -55,7 +54,7 @@ class ResembleHelper extends Helper {
         if (err) {
           reject(err);
         } else {
-          if(!data.isSameDimensions) throw new Error("The images are not of same dimensions. Please use images of same dimensions so as to avoid any unexpected results.")
+          if(!data.isSameDimensions) reject(new Error("The images are not of same dimensions. Please use images of same dimensions so as to avoid any unexpected results."));
           resolve(data);
           if (data.misMatchPercentage >= tolerance) {
             mkdirp(getDirName(this.config.diffFolder + diffImage), function (err) {
@@ -78,14 +77,13 @@ class ResembleHelper extends Helper {
 
   /**
    *
-   * @param image1
+   * @param image
    * @param options
    * @returns {Promise<*>}
    */
-  async _fetchMisMatchPercentage(image1, options) {
-    const image2 = image1;
-    const diffImage = "Diff_" + image1.split(".")[0];
-    const result = this._compareImages(image1, image2, diffImage, options);
+  async _fetchMisMatchPercentage(image, options) {
+    const diffImage = "Diff_" + image.split(".")[0];
+    const result = this._compareImages(image, diffImage, options);
     const data = await Promise.resolve(result);
     return data.misMatchPercentage;
   }
