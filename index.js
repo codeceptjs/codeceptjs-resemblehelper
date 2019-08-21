@@ -26,6 +26,21 @@ class ResembleHelper extends Helper {
     image1 = this.config.baseFolder + image1;
     image2 = this.config.screenshotFolder + image2;
 
+    // check whether the base and the screenshot images are present.
+    fs.access(image1, fs.constants.F_OK | fs.constants.W_OK, (err) => {
+      if (err) {
+        throw new Error(
+          `${image1} ${err.code === 'ENOENT' ? 'base image does not exist' : 'is read-only'}`);
+      }
+    });
+
+    fs.access(image2, fs.constants.F_OK | fs.constants.W_OK, (err) => {
+      if (err) {
+        throw new Error(
+          `${image2} ${err.code === 'ENOENT' ? 'screenshot image does not exist' : 'is read-only'}`);
+      }
+    });
+
     return new Promise((resolve, reject) => {
       
       resemble.outputSettings({
