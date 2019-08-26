@@ -35,7 +35,7 @@ To use the helper, users must provide the three parameters:
 ```js
     /**
      * Check for visual difference between base and screenshot image.
-     * 
+     *
      * @param baseImage         Name of images to compare (paths are taken from config). There needs to be a file with the name @param baseImage in both paths.
      * @param options           Options e.g.: { prepareBaseImage: true, tolerance: 5 } along with ResembleJS options, read more here: https://github.com/rsmbl/Resemble.js.
      * @returns {Promise<void>}
@@ -59,7 +59,7 @@ To use the helper, users must provide the three parameters:
     async seeVisualDiffForElement(selector, baseImage, options);
 ```
 
-> Note: `seeVisualDiffForElement` only works when the page where the `baseImage` originated from is open in the browser. The webdriver needs to calculate the coordinates of the element with the provided selector.  
+> Note: `seeVisualDiffForElement` only works when the page where the `baseImage` originated from is open in the browser. The webdriver needs to calculate the coordinates of the element with the provided selector.
 
 ### I.**`screenshotElement`**()
 
@@ -74,7 +74,7 @@ To use the helper, users must provide the three parameters:
     async I.screenshotElement(selector, fileName);
 ```
 
->Note: This method only works with Puppeteer. As of version 1.7.0 it also works with WebDriver.  
+>Note: This method only works with Puppeteer. As of version 1.7.0 it also works with WebDriver.
 
 ### Example
 
@@ -122,7 +122,7 @@ I.seeVisualDiff("image.png", { prepareBaseImage: true, tolerance: 1, ignoredBox:
 ```
 
 After this, that specific mentioned part will be ignored while comparison.
-This works with both `seeVisualDiff` and `seeVisualDiffForElement`.
+This works for `seeVisualDiff` and `seeVisualDiffForElement`.
 
 ### Allure reporter
 
@@ -140,7 +140,7 @@ in the `codecept.json` / `codecept.conf.js` config file. An attachments will be 
 
 ### AWS support
 
-**Amazon Web Service** S3 is supported to up- and download various images . It can be used by adding the `aws` key inside `"ResembleHelper"` in the `"helpers"` section in the config file. The complete  configuration should look like this:    
+**Amazon Web Service** S3 is supported to up- and download various images . It can be used by adding the `aws` key inside `"ResembleHelper"` in the `"helpers"` section in the config file. The complete  configuration should look like this:
 
 ```json
 {
