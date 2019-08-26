@@ -1,6 +1,6 @@
 {
   "name": "codeceptjs-resemblehelper",
-  "version": "1.7.0",
+  "version": "1.6.0",
   "description": "Resemble Js helper for CodeceptJS, with Support for Webdriver, Puppeteer & Appium",
   "repository": {
     "type": "git",
