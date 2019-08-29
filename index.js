@@ -16,14 +16,15 @@ class ResembleHelper extends Helper {
   /**
    * Compare Images
    * 
-   * @param image
+   * @param image1
+   * @param image2
    * @param diffImage
    * @param options
    * @returns {Promise<any | never>}
    */
-  async _compareImages(image, diffImage, options) {
-    const image1 = this.config.baseFolder + image;
-    const image2 = this.config.screenshotFolder + image;
+  async _compareImages(image1, image2, diffImage, options) {
+    //const image1 = this.config.baseFolder + image;
+    //const image2 = this.config.screenshotFolder + image;
 
     return new Promise((resolve, reject) => {
       
@@ -39,19 +40,19 @@ class ResembleHelper extends Helper {
         if (err) {
           reject(err);
         } else {
-          if(!data.isSameDimensions) reject(new Error("The images are not of same dimensions. Please use images of same dimensions so as to avoid any unexpected results."));
+          if(!data.isSameDimensions) reject(new Error('The images are not of same dimensions. Please use images of same dimensions so as to avoid any unexpected results.'));
           resolve(data);
           if (data.misMatchPercentage >= tolerance) {
-            mkdirp(getDirName(this.config.diffFolder + diffImage), function (err) {
+            mkdirp(getDirName(diffImage), function (err) {
               if (err) return cb(err);
             });
-            fs.writeFile(this.config.diffFolder + diffImage + '.png', data.getBuffer(), (err, data) => {
+            fs.writeFile(`${diffImage}.png`, data.getBuffer(), (err, data) => {
               if (err) {
                 throw new Error(this.err);
               }
               else {
-                  const diffImagePath = path.join(process.cwd(), this.config.diffFolder + diffImage + '.png');
-                  this.debug("Diff Image File Saved to: " + diffImagePath);
+                  const diffImagePath = path.join(process.cwd(), `${diffImage}.png`);
+                  this.debug('Diff Image File Saved to: ' + diffImagePath);
               }
             });
           }
@@ -62,13 +63,14 @@ class ResembleHelper extends Helper {
 
   /**
    *
-   * @param image
+   * @param image1
+   * @param image2
    * @param options
    * @returns {Promise<*>}
    */
-  async _fetchMisMatchPercentage(image, options) {
-    const diffImage = "Diff_" + image.split(".")[0];
-    const result = this._compareImages(image, diffImage, options);
+  async _fetchMisMatchPercentage(image1, image2, options) {
+    const diffImage = "diff_" + image2.split('.')[0]; //TODO: Split on last dot.
+    const result = this._compareImages(image1, image2, diffImage, options);
     const data = await Promise.resolve(result);
     return data.misMatchPercentage;
   }
@@ -76,10 +78,10 @@ class ResembleHelper extends Helper {
   /**
    * Take screenshot of individual element.
    * @param selector selector of the element to be screenshotted 
-   * @param name (including path) name of the image
+   * @param image (including path) name of the image
    * @returns {Promise<void>} 
    */
-  async screenshotElement(selector, name) {
+  async screenshotElement(selector, image) {
     const helper = this._getHelper();
     if(this.helpers['Puppeteer']){
 
@@ -89,7 +91,7 @@ class ResembleHelper extends Helper {
       const el = els[0];
 
       await el.screenshot({
-        path: name + '.png'
+        path: `${image}.png`
       });
     } else if (this.helpers['WebDriver']) {
 
@@ -98,9 +100,9 @@ class ResembleHelper extends Helper {
         if (!els.length) throw new Error(`Element ${selector} couldn't be located`);
         const el = els[0];
 
-        await el.saveScreenshot(name + '.png');
+        await el.saveScreenshot(`${image}.png`);
     }
-    else throw new Error("Method only works with Puppeteer or Webdriver");
+    else throw new Error('Method only works with Puppeteer or Webdriver');
   }
 
   /**
@@ -113,7 +115,7 @@ class ResembleHelper extends Helper {
 
   async _addAttachment(baseImage, misMatch, tolerance) {
     const allure = codeceptjs.container.plugins('allure');
-    const diffImage = "Diff_" + baseImage.split(".")[0] + ".png";
+    const diffImage = "diff_" + baseImage.split('.')[0] + ".png"; //TODO: Split on last dot. What if filename contains dots?
 
     if(allure !== undefined && misMatch >= tolerance) {
       allure.addAttachment('Base Image', fs.readFileSync(this.config.baseFolder + baseImage), 'image/png');
@@ -224,12 +226,13 @@ class ResembleHelper extends Helper {
 
   /**
    * Check Visual Difference for Base and Screenshot Image
-   * @param baseImage         Name of the Base Image (Base Image path is taken from Configuration)
+   * @param image1            Base image (with full path from test root, no extension).
+   * @param image2            New image to compare to (with fill path from test root, no extension).
    * @param options           Options ex {prepareBaseImage: true, tolerance: 5} along with Resemble JS Options, read more here: https://github.com/rsmbl/Resemble.js
    * @returns {Promise<void>}
    */
-  async seeVisualDiff(baseImage, options) {
-    if (options == undefined) {
+  async seeVisualDiff(image1, image2, options) {
+    if (options === undefined) {
       options = {};
       options.tolerance = 0;
     }
@@ -237,19 +240,19 @@ class ResembleHelper extends Helper {
     const awsC = this.config.aws;
 
     if (awsC !== undefined && options.prepareBaseImage === false) {
-        await this._download(awsC.accessKeyId, awsC.secretAccessKey, awsC.region, awsC.bucketName, baseImage);
+        await this._download(awsC.accessKeyId, awsC.secretAccessKey, awsC.region, awsC.bucketName, image1);
     }
 
     if (options.prepareBaseImage !== undefined && options.prepareBaseImage) {
-      await this._prepareBaseImage(baseImage);
+      await this._prepareBaseImage(image1);
     }
 
-    const misMatch = await this._fetchMisMatchPercentage(baseImage, options);
+    const misMatch = await this._fetchMisMatchPercentage(image1, image2, options);
 
     this._addAttachment(baseImage, misMatch, options.tolerance);
 
     if(awsC !== undefined) {
-        let ifUpload = options.prepareBaseImage === false ? false : true;
+        let ifUpload = options.prepareBaseImage !== false;
         await this._upload(awsC.accessKeyId, awsC.secretAccessKey, awsC.region, awsC.bucketName, baseImage, ifUpload)
     }
 
@@ -267,7 +270,7 @@ class ResembleHelper extends Helper {
    */
   async seeVisualDiffForElement(selector, baseImage, options) {
 
-    if (options == undefined) {
+    if (options === undefined) {
       options = {};
       options.tolerance = 0;
     }
@@ -288,7 +291,7 @@ class ResembleHelper extends Helper {
     this._addAttachment(baseImage, misMatch, options.tolerance);
     
     if(awsC !== undefined) {
-        let ifUpload = options.prepareBaseImage === false ? false : true;
+        let ifUpload = options.prepareBaseImage !== false;
         await this._upload(awsC.accessKeyId, awsC.secretAccessKey, awsC.region, awsC.bucketName, baseImage, ifUpload)
     }
 
@@ -299,28 +302,29 @@ class ResembleHelper extends Helper {
   /**
    * Function to prepare Base Images from Screenshots
    *
-   * @param screenShotImage  Name of the screenshot Image (Screenshot Image Path is taken from Configuration)
+   * @param image  Name of the screenshot image.
    */
-  async _prepareBaseImage(screenShotImage) {
-    const configuration = this.config;
+  async _prepareBaseImage(image) {
+    //const configuration = this.config;
 
-    await this._createDir(configuration.baseFolder + screenShotImage);
+    await this._createDir(image);
 
-    fs.access(configuration.screenshotFolder + screenShotImage, fs.constants.F_OK | fs.constants.W_OK, (err) => {
+    fs.access(image, fs.constants.F_OK | fs.constants.W_OK, (err) => {
       if (err) {
         throw new Error(
-          `${configuration.screenshotFolder + screenShotImage} ${err.code === 'ENOENT' ? 'does not exist' : 'is read-only'}`);
+          `${image} ${err.code === 'ENOENT' ? 'does not exist' : 'is read-only'}`);
       }
     });
 
-    fs.access(configuration.baseFolder, fs.constants.F_OK | fs.constants.W_OK, (err) => {
+    //TODO: Check if this can work with filenames too... even though its a directory!
+    fs.access(image, fs.constants.F_OK | fs.constants.W_OK, (err) => {
       if (err) {
         throw new Error(
-          `${configuration.baseFolder} ${err.code === 'ENOENT' ? 'does not exist' : 'is read-only'}`);
+          `${image} ${err.code === 'ENOENT' ? 'does not exist' : 'is read-only'}`);
       }
     });
 
-    fs.copyFileSync(configuration.screenshotFolder + screenShotImage, configuration.baseFolder + screenShotImage);
+    fs.copyFileSync(configuration.screenshotFolder + image, configuration.baseFolder + image);
   }
 
   /**
