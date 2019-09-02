@@ -20,7 +20,6 @@ Example:
    "helpers": {
      "ResembleHelper" : {
        "require": "codeceptjs-resemblehelper",
-       "screenshotFolder" : "./tests/output/",
        "baseFolder": "./tests/screenshots/base/",
        "diffFolder": "./tests/screenshots/diff/"
      }
@@ -28,9 +27,7 @@ Example:
 }
 ```
 
-To use the Helper, users must provide the three parameters:
-
-`screenshotFolder`: This will always have the same value as `output` in CodeceptJS configuration, this is the folder where WebdriverIO saves a screenshot when using `I.saveScreenshot` method.
+To use the Helper, users must provide the two parameters:
 
 `baseFolder`: This is the folder for base images, which will be used with screenshot for comparison.
 
@@ -139,7 +136,6 @@ It can be used by adding the *aws* code inside `"ResembleHelper"` in the `"helpe
     "helpers": {
         "ResembleHelper" : {
             "require": "codeceptjs-resemblehelper",
-            "screenshotFolder" : "<location of output folder>",
             "baseFolder": "<location of base folder>",
             "diffFolder": "<location of diff folder>",
             "aws": {
