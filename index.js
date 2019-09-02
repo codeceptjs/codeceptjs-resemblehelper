@@ -3,7 +3,7 @@ const fs = require('fs');
 const assert = require('assert');
 const mkdirp = require('mkdirp');
 const getDirName = require('path').dirname;
-const getBaseName = require('path').baseName;
+const getBaseName = require('path').basename;
 const AWS = require('aws-sdk');
 const path = require('path');
 
