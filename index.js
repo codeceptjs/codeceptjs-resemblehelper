@@ -5,6 +5,7 @@ const mkdirp = require('mkdirp');
 const getDirName = require('path').dirname;
 const AWS = require('aws-sdk');
 const path = require('path');
+const sizeOf = require('image-size');
 
 /**
  * Resemble.js helper class for CodeceptJS, this allows screen comparison
@@ -54,7 +55,11 @@ class ResembleHelper extends Helper {
         if (err) {
           reject(err);
         } else {
-          if(!data.isSameDimensions) reject(new Error("The images are not of same dimensions. Please use images of same dimensions so as to avoid any unexpected results."));
+          if(!data.isSameDimensions) {
+            let dimensions1 = sizeOf(image1);
+            let dimensions2 = sizeOf(image2);
+            reject(new Error("The image1 is of " +dimensions1.height + " X " + dimensions1.width + " and image2 is of " + dimensions2.height + " X " + dimensions2.width + ". Please use images of same dimensions so as to avoid any unexpected results."));
+          }
           resolve(data);
           if (data.misMatchPercentage >= tolerance) {
             mkdirp(getDirName(this.config.diffFolder + diffImage), function (err) {
