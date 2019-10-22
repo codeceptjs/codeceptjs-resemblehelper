@@ -14,17 +14,31 @@ const sizeOf = require('image-size');
 
 class ResembleHelper extends Helper {
 
+  constructor(config) {
+    super(config);
+    this.baseFolder = this.resolvePath(config.baseFolder);
+    this.diffFolder = this.resolvePath(config.diffFolder);
+    this.screenshotFolder = global.output_dir + "/";
+  }
+
+  resolvePath(folderPath) {
+    if (!path.isAbsolute(folderPath)) {
+      return path.resolve(global.codecept_dir, folderPath) + "/"; // custom helper
+    }
+    return folderPath;
+  }
+
   /**
    * Compare Images
-   * 
+   *
    * @param image
    * @param diffImage
    * @param options
    * @returns {Promise<any | never>}
    */
   async _compareImages(image, diffImage, options) {
-    const image1 = this.config.baseFolder + image;
-    const image2 = this.config.screenshotFolder + image;
+    const image1 = this.baseFolder + image;
+    const image2 = this.screenshotFolder + image;
 
     // check whether the base and the screenshot images are present.
     fs.access(image1, fs.constants.F_OK | fs.constants.W_OK, (err) => {
@@ -42,7 +56,7 @@ class ResembleHelper extends Helper {
     });
 
     return new Promise((resolve, reject) => {
-      
+
       resemble.outputSettings({
         boundingBox: options.boundingBox,
         ignoredBox: options.ignoredBox
@@ -55,23 +69,22 @@ class ResembleHelper extends Helper {
         if (err) {
           reject(err);
         } else {
-          if(!data.isSameDimensions) {
+          if (!data.isSameDimensions) {
             let dimensions1 = sizeOf(image1);
             let dimensions2 = sizeOf(image2);
-            reject(new Error("The image1 is of " +dimensions1.height + " X " + dimensions1.width + " and image2 is of " + dimensions2.height + " X " + dimensions2.width + ". Please use images of same dimensions so as to avoid any unexpected results."));
+            reject(new Error("The image1 is of " + dimensions1.height + " X " + dimensions1.width + " and image2 is of " + dimensions2.height + " X " + dimensions2.width + ". Please use images of same dimensions so as to avoid any unexpected results."));
           }
           resolve(data);
           if (data.misMatchPercentage >= tolerance) {
-            mkdirp(getDirName(this.config.diffFolder + diffImage), function (err) {
+            mkdirp(getDirName(this.diffFolder + diffImage), function (err) {
               if (err) return cb(err);
             });
-            fs.writeFile(this.config.diffFolder + diffImage + '.png', data.getBuffer(), (err, data) => {
+            fs.writeFile(this.diffFolder + diffImage + '.png', data.getBuffer(), (err, data) => {
               if (err) {
                 throw new Error(this.err);
-              }
-              else {
-                  const diffImagePath = path.join(process.cwd(), this.config.diffFolder + diffImage + '.png');
-                  this.debug("Diff Image File Saved to: " + diffImagePath);
+              } else {
+                const diffImagePath = path.join(process.cwd(), this.diffFolder + diffImage + '.png');
+                this.debug("Diff Image File Saved to: " + diffImagePath);
               }
             });
           }
@@ -95,13 +108,13 @@ class ResembleHelper extends Helper {
 
   /**
    * Take screenshot of individual element.
-   * @param selector selector of the element to be screenshotted 
+   * @param selector selector of the element to be screenshotted
    * @param name name of the image
-   * @returns {Promise<void>} 
+   * @returns {Promise<void>}
    */
   async screenshotElement(selector, name) {
     const helper = this._getHelper();
-    if(this.helpers['Puppeteer']){
+    if (this.helpers['Puppeteer']) {
       await helper.waitForVisible(selector);
       const els = await helper._locate(selector);
       if (!els.length) throw new Error(`Element ${selector} couldn't be located`);
@@ -111,16 +124,13 @@ class ResembleHelper extends Helper {
         path: global.output_dir + "/" + name + '.png'
       });
     } else if (this.helpers['WebDriver']) {
-      const configuration = this.config;
-
       await helper.waitForVisible(selector);
       const els = await helper._locate(selector);
       if (!els.length) throw new Error(`Element ${selector} couldn't be located`);
       const el = els[0];
 
-      await el.saveScreenshot(configuration.screenshotFolder + name + '.png');
-  }
-    else throw new Error("Method only works with Puppeteer and WebDriver helpers.");
+      await el.saveScreenshot(this.screenshotFolder + name + '.png');
+    } else throw new Error("Method only works with Puppeteer and WebDriver helpers.");
   }
 
   /**
@@ -135,12 +145,12 @@ class ResembleHelper extends Helper {
     const allure = codeceptjs.container.plugins('allure');
     const diffImage = "Diff_" + baseImage.split(".")[0] + ".png";
 
-    if(allure !== undefined && misMatch >= tolerance) {
-      allure.addAttachment('Base Image', fs.readFileSync(this.config.baseFolder + baseImage), 'image/png');
-      allure.addAttachment('Screenshot Image', fs.readFileSync(this.config.screenshotFolder + baseImage), 'image/png');
-      allure.addAttachment('Diff Image', fs.readFileSync(this.config.diffFolder + diffImage), 'image/png');
+    if (allure !== undefined && misMatch >= tolerance) {
+      allure.addAttachment('Base Image', fs.readFileSync(this.baseFolder + baseImage), 'image/png');
+      allure.addAttachment('Screenshot Image', fs.readFileSync(this.screenshotFolder + baseImage), 'image/png');
+      allure.addAttachment('Diff Image', fs.readFileSync(this.diffFolder + diffImage), 'image/png');
     }
-  }  
+  }
 
   /**
    * This method uploads the diff and screenshot images into the bucket with diff image under bucketName/diff/diffImage and the screenshot image as
@@ -155,60 +165,59 @@ class ResembleHelper extends Helper {
    */
 
   async _upload(accessKeyId, secretAccessKey, region, bucketName, baseImage, ifBaseImage) {
-      console.log("Starting Upload... ");
-      const s3 = new AWS.S3({
-          accessKeyId: accessKeyId,
-          secretAccessKey: secretAccessKey,
-          region: region
+    console.log("Starting Upload... ");
+    const s3 = new AWS.S3({
+      accessKeyId: accessKeyId,
+      secretAccessKey: secretAccessKey,
+      region: region
+    });
+    fs.readFile(this.screenshotFolder + baseImage, (err, data) => {
+      if (err) throw err;
+      let base64data = new Buffer(data, 'binary');
+      const params = {
+        Bucket: bucketName,
+        Key: `output/${baseImage}`,
+        Body: base64data
+      };
+      s3.upload(params, (uerr, data) => {
+        if (uerr) throw uerr;
+        console.log(`Screenshot Image uploaded successfully at ${data.Location}`);
       });
-      fs.readFile(this.config.screenshotFolder + baseImage, (err, data) => {
-          if(err) throw err;
+    });
+    fs.readFile(this.diffFolder + "Diff_" + baseImage, (err, data) => {
+      if (err) console.log("Diff image not generated");
+      else {
+        let base64data = new Buffer(data, 'binary');
+        const params = {
+          Bucket: bucketName,
+          Key: `diff/Diff_${baseImage}`,
+          Body: base64data
+        };
+        s3.upload(params, (uerr, data) => {
+          if (uerr) throw uerr;
+          console.log(`Diff Image uploaded successfully at ${data.Location}`)
+        });
+      }
+    });
+    if (ifBaseImage) {
+      fs.readFile(this.baseFolder + baseImage, (err, data) => {
+        if (err) throw err;
+        else {
           let base64data = new Buffer(data, 'binary');
           const params = {
-              Bucket: bucketName,
-              Key: `output/${baseImage}`,
-              Body: base64data
+            Bucket: bucketName,
+            Key: `base/${baseImage}`,
+            Body: base64data
           };
           s3.upload(params, (uerr, data) => {
-              if(uerr) throw uerr;
-              console.log(`Screenshot Image uploaded successfully at ${data.Location}`);
+            if (uerr) throw uerr;
+            console.log(`Base Image uploaded at ${data.Location}`)
           });
+        }
       });
-      fs.readFile(this.config.diffFolder + "Diff_" + baseImage, (err, data) => {
-          if(err) console.log("Diff image not generated");
-          else {
-              let base64data = new Buffer(data, 'binary');
-              const params = {
-                  Bucket: bucketName,
-                  Key: `diff/Diff_${baseImage}`,
-                  Body: base64data
-              };
-              s3.upload(params, (uerr, data) => {
-                  if(uerr) throw uerr;
-                  console.log(`Diff Image uploaded successfully at ${data.Location}`)
-              });
-          }
-      });
-      if(ifBaseImage) {
-          fs.readFile(this.config.baseFolder + baseImage, (err, data) => {
-              if(err) throw err;
-              else {
-                  let base64data = new Buffer(data, 'binary');
-                  const params = {
-                      Bucket: bucketName,
-                      Key: `base/${baseImage}`,
-                      Body: base64data
-                  };
-                  s3.upload(params, (uerr, data) => {
-                      if(uerr) throw uerr;
-                      console.log(`Base Image uploaded at ${data.Location}`)
-                  });
-              }
-          });
-      }
-      else {
-          console.log("Not Uploading base Image");
-      }
+    } else {
+      console.log("Not Uploading base Image");
+    }
   }
 
   /**
@@ -222,24 +231,24 @@ class ResembleHelper extends Helper {
    */
 
   _download(accessKeyId, secretAccessKey, region, bucketName, baseImage) {
-      console.log("Starting Download...");
-      const s3 = new AWS.S3({
-          accessKeyId: accessKeyId,
-          secretAccessKey: secretAccessKey,
-          region: region
+    console.log("Starting Download...");
+    const s3 = new AWS.S3({
+      accessKeyId: accessKeyId,
+      secretAccessKey: secretAccessKey,
+      region: region
+    });
+    const params = {
+      Bucket: bucketName,
+      Key: `base/${baseImage}`
+    };
+    return new Promise((resolve, reject) => {
+      s3.getObject(params, (err, data) => {
+        if (err) console.error(err);
+        console.log(this.baseFolder + baseImage);
+        fs.writeFileSync(this.baseFolder + baseImage, data.Body);
+        resolve("File Downloaded Successfully");
       });
-      const params = {
-          Bucket: bucketName,
-          Key: `base/${baseImage}`
-      };
-      return new Promise((resolve, reject) => {
-          s3.getObject(params, (err, data) => {
-              if(err) console.error(err);
-              console.log(this.config.baseFolder + baseImage);
-              fs.writeFileSync(this.config.baseFolder + baseImage, data.Body);
-              resolve("File Downloaded Successfully");
-          });
-      });
+    });
   }
 
   /**
@@ -255,10 +264,9 @@ class ResembleHelper extends Helper {
     }
 
     const awsC = this.config.aws;
-    this.config.screenshotFolder = global.output_dir + "/";
 
     if (awsC !== undefined && options.prepareBaseImage === false) {
-        await this._download(awsC.accessKeyId, awsC.secretAccessKey, awsC.region, awsC.bucketName, baseImage);
+      await this._download(awsC.accessKeyId, awsC.secretAccessKey, awsC.region, awsC.bucketName, baseImage);
     }
 
     if (options.prepareBaseImage !== undefined && options.prepareBaseImage) {
@@ -269,9 +277,9 @@ class ResembleHelper extends Helper {
 
     this._addAttachment(baseImage, misMatch, options.tolerance);
 
-    if(awsC !== undefined) {
-        let ifUpload = options.prepareBaseImage === false ? false : true;
-        await this._upload(awsC.accessKeyId, awsC.secretAccessKey, awsC.region, awsC.bucketName, baseImage, ifUpload)
+    if (awsC !== undefined) {
+      let ifUpload = options.prepareBaseImage === false ? false : true;
+      await this._upload(awsC.accessKeyId, awsC.secretAccessKey, awsC.region, awsC.bucketName, baseImage, ifUpload)
     }
 
     this.debug("MisMatch Percentage Calculated is " + misMatch);
@@ -294,10 +302,9 @@ class ResembleHelper extends Helper {
     }
 
     const awsC = this.config.aws;
-    this.config.screenshotFolder = global.output_dir + "/";
 
     if (awsC !== undefined && options.prepareBaseImage === false) {
-        await this._download(awsC.accessKeyId, awsC.secretAccessKey, awsC.region, awsC.bucketName, baseImage);
+      await this._download(awsC.accessKeyId, awsC.secretAccessKey, awsC.region, awsC.bucketName, baseImage);
     }
 
     if (options.prepareBaseImage !== undefined && options.prepareBaseImage) {
@@ -308,10 +315,10 @@ class ResembleHelper extends Helper {
     const misMatch = await this._fetchMisMatchPercentage(baseImage, options);
 
     this._addAttachment(baseImage, misMatch, options.tolerance);
-    
-    if(awsC !== undefined) {
-        let ifUpload = options.prepareBaseImage === false ? false : true;
-        await this._upload(awsC.accessKeyId, awsC.secretAccessKey, awsC.region, awsC.bucketName, baseImage, ifUpload)
+
+    if (awsC !== undefined) {
+      let ifUpload = options.prepareBaseImage === false ? false : true;
+      await this._upload(awsC.accessKeyId, awsC.secretAccessKey, awsC.region, awsC.bucketName, baseImage, ifUpload)
     }
 
     this.debug("MisMatch Percentage Calculated is " + misMatch);
@@ -324,25 +331,23 @@ class ResembleHelper extends Helper {
    * @param screenShotImage  Name of the screenshot Image (Screenshot Image Path is taken from Configuration)
    */
   async _prepareBaseImage(screenShotImage) {
-    const configuration = this.config;
+    await this._createDir(this.baseFolder + screenShotImage);
 
-    await this._createDir(configuration.baseFolder + screenShotImage);
-
-    fs.access(configuration.screenshotFolder + screenShotImage, fs.constants.F_OK | fs.constants.W_OK, (err) => {
+    fs.access(this.screenshotFolder + screenShotImage, fs.constants.F_OK | fs.constants.W_OK, (err) => {
       if (err) {
         throw new Error(
-          `${configuration.screenshotFolder + screenShotImage} ${err.code === 'ENOENT' ? 'does not exist' : 'is read-only'}`);
+          `${this.screenshotFolder + screenShotImage} ${err.code === 'ENOENT' ? 'does not exist' : 'is read-only'}`);
       }
     });
 
-    fs.access(configuration.baseFolder, fs.constants.F_OK | fs.constants.W_OK, (err) => {
+    fs.access(this.baseFolder, fs.constants.F_OK | fs.constants.W_OK, (err) => {
       if (err) {
         throw new Error(
-          `${configuration.baseFolder} ${err.code === 'ENOENT' ? 'does not exist' : 'is read-only'}`);
+          `${this.baseFolder} ${err.code === 'ENOENT' ? 'does not exist' : 'is read-only'}`);
       }
     });
 
-    fs.copyFileSync(configuration.screenshotFolder + screenShotImage, configuration.baseFolder + screenShotImage);
+    fs.copyFileSync(this.screenshotFolder + screenShotImage, this.baseFolder + screenShotImage);
   }
 
   /**
@@ -371,15 +376,15 @@ class ResembleHelper extends Helper {
     let location, size;
 
     if (this.helpers['Puppeteer']) {
-      const box = await el.boundingBox();      
+      const box = await el.boundingBox();
       size = location = box;
     }
 
     if (this.helpers['WebDriver'] || this.helpers['Appium']) {
       location = await el.getLocation();
       size = await el.getSize();
-    } 
-    
+    }
+
     if (this.helpers['WebDriverIO']) {
       location = await helper.browser.getLocation(selector);
       size = await helper.browser.getElementSize(selector);
@@ -417,4 +422,5 @@ class ResembleHelper extends Helper {
     throw new Error('No matching helper found. Supported helpers: WebDriver/Appium/Puppeteer');
   }
 }
+
 module.exports = ResembleHelper;
