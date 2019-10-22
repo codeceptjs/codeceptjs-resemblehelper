@@ -23,7 +23,7 @@ class ResembleHelper extends Helper {
 
   resolvePath(folderPath) {
     if (!path.isAbsolute(folderPath)) {
-      return path.resolve(global.codecept_dir, folderPath) + "/"; // custom helper
+      return path.resolve(global.codecept_dir, folderPath) + "/";
     }
     return folderPath;
   }
