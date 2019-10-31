@@ -37,21 +37,21 @@ class ResembleHelper extends Helper {
    * @returns {Promise<resolve | reject>}
    */
   async _compareImages(image, diffImage, options) {
-    const image1 = this.baseFolder + image;
-    const image2 = this.screenshotFolder + image;
+    const baseImage = this.baseFolder + image;
+    const actualImage = this.screenshotFolder + image;
 
     // check whether the base and the screenshot images are present.
-    fs.access(image1, fs.constants.F_OK | fs.constants.W_OK, (err) => {
+    fs.access(baseImage, fs.constants.F_OK | fs.constants.W_OK, (err) => {
       if (err) {
         throw new Error(
-          `${image1} ${err.code === 'ENOENT' ? 'base image does not exist' : 'is read-only'}`);
+          `${baseImage} ${err.code === 'ENOENT' ? 'base image does not exist' : 'is read-only'}`);
       }
     });
 
-    fs.access(image2, fs.constants.F_OK | fs.constants.W_OK, (err) => {
+    fs.access(actualImage, fs.constants.F_OK | fs.constants.W_OK, (err) => {
       if (err) {
         throw new Error(
-          `${image2} ${err.code === 'ENOENT' ? 'screenshot image does not exist' : 'is read-only'}`);
+          `${actualImage} ${err.code === 'ENOENT' ? 'screenshot image does not exist' : 'is read-only'}`);
       }
     });
 
@@ -65,14 +65,14 @@ class ResembleHelper extends Helper {
       this.debug("Tolerance Level Provided " + options.tolerance);
       const tolerance = options.tolerance;
 
-      resemble.compare(image1, image2, options, (err, data) => {
+      resemble.compare(baseImage, actualImage, options, (err, data) => {
         if (err) {
           reject(err);
         } else {
           if (!data.isSameDimensions) {
-            let dimensions1 = sizeOf(image1);
-            let dimensions2 = sizeOf(image2);
-            reject(new Error("The image1 is of " + dimensions1.height + " X " + dimensions1.width + " and image2 is of " + dimensions2.height + " X " + dimensions2.width + ". Please use images of same dimensions so as to avoid any unexpected results."));
+            let dimensions1 = sizeOf(baseImage);
+            let dimensions2 = sizeOf(actualImage);
+            reject(new Error("The base image is of " + dimensions1.height + " X " + dimensions1.width + " and actual image is of " + dimensions2.height + " X " + dimensions2.width + ". Please use images of same dimensions so as to avoid any unexpected results."));
           }
           resolve(data);
           if (data.misMatchPercentage >= tolerance) {
