@@ -16,6 +16,10 @@
     "aws-sdk": "^2.476.0",
     "image-size": "^0.7.4"
   },
+  "devDependencies": {
+    "allure-commandline": "^2.13.0",
+    "codeceptjs": "^2.3.5"
+  },
   "keywords": [
     "codeceptJS",
     "codeceptjs",
