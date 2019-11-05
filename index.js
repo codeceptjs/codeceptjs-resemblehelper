@@ -386,7 +386,6 @@ class ResembleHelper extends Helper {
         if (this.helpers['Puppeteer']) {
             return this.helpers['Puppeteer'];
         }
-
         if (this.helpers['WebDriver']) {
             return this.helpers['WebDriver'];
         }
