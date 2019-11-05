@@ -23,7 +23,7 @@ class ResembleHelper extends Helper {
      * @param options
      * @returns {Promise<any | never>}
      */
-    async _compareImages(image1, image2, diffImage, options) {
+    async _compareImages(image1, image2, diffImage, options, id, I) {
         //const image1 = this.config.baseFolder + image;
         //const image2 = this.config.screenshotFolder + image;
 
@@ -31,7 +31,8 @@ class ResembleHelper extends Helper {
 
             resemble.outputSettings({
                 boundingBox: options.boundingBox,
-                ignoredBox: options.ignoredBox
+                ignoredBox: options.ignoredBox,
+                largeImageThreshold: 0
             });
 
             this.debug("Tolerance Level Provided " + options.tolerance);
@@ -41,7 +42,9 @@ class ResembleHelper extends Helper {
                 if (err) {
                     reject(err);
                 } else {
-                    if (!data.isSameDimensions) reject(new Error('The images are not of same dimensions. Please use images of same dimensions so as to avoid any unexpected results.'));
+                    I.currentMismatchPercentage[id] = data.misMatchPercentage;
+                    //if (!data.isSameDimensions) reject(new Error('The images are not of same dimensions. Please use images of same dimensions so as to avoid any unexpected results.'));
+
                     resolve(data);
                     if (data.misMatchPercentage >= tolerance) {
                         mkdirp.sync(getDirName(diffImage), function (err) {
@@ -68,9 +71,9 @@ class ResembleHelper extends Helper {
      * @param options
      * @returns {Promise<*>}
      */
-    async _fetchMisMatchPercentage(image1, image2, options) {
+    async _fetchMisMatchPercentage(image1, image2, options, id, I) {
         const diffImage = path.join(this.config.diffFolder, getBaseName(image1));
-        const result = this._compareImages(image1, image2, diffImage, options);
+        const result = this._compareImages(image1, image2, diffImage, options, id, I);
         const data = await Promise.resolve(result);
         return data.misMatchPercentage;
     }
@@ -225,9 +228,11 @@ class ResembleHelper extends Helper {
      * @param image1            Base image (with full path from test root, no extension).
      * @param image2            New image to compare to (with fill path from test root, no extension).
      * @param options           Options ex {prepareBaseImage: true, tolerance: 5} along with Resemble JS Options, read more here: https://github.com/rsmbl/Resemble.js
+     * @param id                ID of the current page
+     * @param I                 CodeceptJS.I reference
      * @returns {Promise<void>}
      */
-    async seeVisualDiff(image1, image2, options) {
+    async seeVisualDiff(image1, image2, options, id, I) {
         if (options === undefined) {
             options = {};
             options.tolerance = 0;
@@ -243,7 +248,7 @@ class ResembleHelper extends Helper {
             await this._prepareBaseImage(image1);
         }
 
-        const misMatch = await this._fetchMisMatchPercentage(image1, image2, options);
+        const misMatch = await this._fetchMisMatchPercentage(image1, image2, options, id, I);
 
         //this._addAttachment(baseImage, misMatch, options.tolerance); //TODO: Patch _addAttachment method to work with absolut paths
 
@@ -381,7 +386,6 @@ class ResembleHelper extends Helper {
         if (this.helpers['Puppeteer']) {
             return this.helpers['Puppeteer'];
         }
-
         if (this.helpers['WebDriver']) {
             return this.helpers['WebDriver'];
         }
