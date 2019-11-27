@@ -148,6 +148,28 @@ class ResembleHelper extends Helper {
   }
 
   /**
+   * This method attaches context, and images to Mochawesome reporter when the mismatch exceeds tolerance.
+   * @param baseImage
+   * @param misMatch
+   * @param tolerance
+   * @returns {Promise<void>}
+   */
+
+  async _addMochaContext(baseImage, misMatch, tolerance) {
+    const mocha = this.helpers['Mochawesome'];
+    const diffImage = "Diff_" + baseImage.split(".")[0] + ".png";
+
+    if (mocha !== undefined && misMatch >= tolerance) {
+      await mocha.addMochawesomeContext("Base Image");
+      await mocha.addMochawesomeContext(this.baseFolder + baseImage);
+      await mocha.addMochawesomeContext("ScreenShot Image");
+      await mocha.addMochawesomeContext(this.screenshotFolder + baseImage);
+      await mocha.addMochawesomeContext("Diff Image");
+      await mocha.addMochawesomeContext(this.diffFolder + diffImage);
+    }
+  }
+
+  /**
    * This method uploads the diff and screenshot images into the bucket with diff image under bucketName/diff/diffImage and the screenshot image as
    * bucketName/output/ssImage
    * @param accessKeyId
@@ -291,6 +313,8 @@ class ResembleHelper extends Helper {
     const misMatch = await this._fetchMisMatchPercentage(baseImage, options);
 
     this._addAttachment(baseImage, misMatch, options.tolerance);
+
+    this._addMochaContext(baseImage, misMatch, options.tolerance);
 
     if (awsC !== undefined) {
       await this._upload(awsC.accessKeyId, awsC.secretAccessKey, awsC.region, awsC.bucketName, baseImage, options.prepareBaseImage)
