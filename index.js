@@ -70,8 +70,8 @@ class ResembleHelper extends Helper {
           reject(err);
         } else {
           if (!data.isSameDimensions) {
-            let dimensions1 = sizeOf(baseImage);
-            let dimensions2 = sizeOf(actualImage);
+            const dimensions1 = sizeOf(baseImage);
+            const dimensions2 = sizeOf(actualImage);
             reject(new Error("The base image is of " + dimensions1.height + " X " + dimensions1.width + " and actual image is of " + dimensions2.height + " X " + dimensions2.width + ". Please use images of same dimensions so as to avoid any unexpected results."));
           }
           resolve(data);
@@ -190,7 +190,7 @@ class ResembleHelper extends Helper {
     });
     fs.readFile(this.screenshotFolder + baseImage, (err, data) => {
       if (err) throw err;
-      let base64data = new Buffer(data, 'binary');
+      const base64data = new Buffer(data, 'binary');
       const params = {
         Bucket: bucketName,
         Key: `output/${baseImage}`,
@@ -204,7 +204,7 @@ class ResembleHelper extends Helper {
     fs.readFile(this.diffFolder + "Diff_" + baseImage, (err, data) => {
       if (err) console.log("Diff image not generated");
       else {
-        let base64data = new Buffer(data, 'binary');
+        const base64data = new Buffer(data, 'binary');
         const params = {
           Bucket: bucketName,
           Key: `diff/Diff_${baseImage}`,
