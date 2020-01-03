@@ -102,7 +102,7 @@ Scenario('Compare CPU Usage Images', async (I) => {
 ### Ignored Box
 You can also exclude part of the image from comparison, by specifying the excluded area in pixels from the top left.
 Just declare an object and pass it in options as `ignoredBox`:
-```
+```js
 const box = {
     left: 0,
     top: 10,
@@ -114,6 +114,19 @@ I.seeVisualDiff("image.png", {prepareBaseImage: true, tolerance: 1, ignoredBox: 
 ```
 After this, that specific mentioned part will be ignored while comparison.
 This works for `seeVisualDiff` and `seeVisualDiffForElement`.
+
+### resemble.js Output Settings
+You can set further output settings used by resemble.js. Declare an object specifying them and pass it in the options as `outputSettings`:
+
+```js
+const outputSettings = {
+    ignoreAreasColoredWith: {r: 250, g: 250, b: 250, a: 0},
+    // read more here: https://github.com/rsmbl/Resemble.js
+};
+I.seeVisualDiff("image.png", {prepareBaseImage: true, tolerance: 1, outputSettings: outputSettings});
+```
+
+Refer to the [resemble.js](https://github.com/rsmbl/Resemble.js) documentation for available output settings.
 
 ### Allure Reporter
 Allure reports may also be generated directly from the tool. To do so, add
