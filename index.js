@@ -125,7 +125,14 @@ class ResembleHelper extends Helper {
       const el = els[0];
 
       await el.saveScreenshot(this.screenshotFolder + name + '.png');
-    } else throw new Error("Method only works with Puppeteer and WebDriver helpers.");
+    } else if (this.helpers['TestCafe']) {
+      await helper.waitForVisible(selector);
+      const els = await helper._locate(selector);
+      if (!await els.count) throw new Error(`Element ${selector} couldn't be located`);
+      const { t } = this.helpers['TestCafe'];
+
+      await t.takeElementScreenshot(els, name);
+    } else throw new Error("Method only works with Puppeteer, WebDriver or TestCafe helpers.");
   }
 
   /**
@@ -297,25 +304,18 @@ class ResembleHelper extends Helper {
     }
 
     const awsC = this.config.aws;
-
     if (awsC !== undefined && options.prepareBaseImage === false) {
       await this._download(awsC.accessKeyId, awsC.secretAccessKey, awsC.region, awsC.bucketName, baseImage);
     }
-
     if (options.prepareBaseImage !== undefined && options.prepareBaseImage) {
       await this._prepareBaseImage(baseImage);
     }
-
     if (selector) {
       options.boundingBox = await this._getBoundingBox(selector);
     }
-
     const misMatch = await this._fetchMisMatchPercentage(baseImage, options);
-
     this._addAttachment(baseImage, misMatch, options.tolerance);
-
     this._addMochaContext(baseImage, misMatch, options.tolerance);
-
     if (awsC !== undefined) {
       await this._upload(awsC.accessKeyId, awsC.secretAccessKey, awsC.region, awsC.bucketName, baseImage, options.prepareBaseImage)
     }
@@ -369,17 +369,24 @@ class ResembleHelper extends Helper {
     const helper = this._getHelper();
     await helper.waitForVisible(selector);
     const els = await helper._locate(selector);
-    if (!els.length) throw new Error(`Element ${selector} couldn't be located`);
-    const el = els[0];
+    
+    if (this.helpers['TestCafe']) {
+      if (await els.count != 1) throw new Error(`Element ${selector} couldn't be located or isn't unique on the page`);
+    }
+    else {
+      if (!els.length) throw new Error(`Element ${selector} couldn't be located`);
+    }
 
     let location, size;
 
     if (this.helpers['Puppeteer']) {
+      const el = els[0];
       const box = await el.boundingBox();
       size = location = box;
     }
 
     if (this.helpers['WebDriver'] || this.helpers['Appium']) {
+      const el = els[0];
       location = await el.getLocation();
       size = await el.getSize();
     }
@@ -387,6 +394,9 @@ class ResembleHelper extends Helper {
     if (this.helpers['WebDriverIO']) {
       location = await helper.browser.getLocation(selector);
       size = await helper.browser.getElementSize(selector);
+    }
+    if (this.helpers['TestCafe']) {
+      return await els.boundingClientRect;
     }
 
     if (!size) {
@@ -421,8 +431,11 @@ class ResembleHelper extends Helper {
     if (this.helpers['WebDriverIO']) {
       return this.helpers['WebDriverIO'];
     }
+    if (this.helpers['TestCafe']) {
+      return this.helpers['TestCafe'];
+    }
 
-    throw new Error('No matching helper found. Supported helpers: WebDriver/Appium/Puppeteer');
+    throw new Error('No matching helper found. Supported helpers: WebDriver/Appium/Puppeteer/TestCafe');
   }
 }
 
