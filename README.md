@@ -1,5 +1,5 @@
 # codeceptjs-resemblehelper
-Helper for resemble.js, used for image comparison in tests with WebdriverIO.
+Helper for resemble.js, used for image comparison in tests with WebdriverIO or Puppeteer.
 
 codeceptjs-resemblehelper is a [CodeceptJS](https://codecept.io/) helper which can be used to compare screenshots and make the tests fail/pass based on the tolerance allowed.
 
@@ -21,19 +21,25 @@ Example:
      "ResembleHelper" : {
        "require": "codeceptjs-resemblehelper",
        "baseFolder": "./tests/screenshots/base/",
-       "diffFolder": "./tests/screenshots/diff/"
+       "diffFolder": "./tests/screenshots/diff/",
+       "prepareBaseImage": true
      }
    }
 }
 ```
 
-To use the Helper, users must provide the two parameters:
+To use the Helper, users may provide the parameters:
 
-`baseFolder`: This is the folder for base images, which will be used with screenshot for comparison.
+`baseFolder`: Mandatory. This is the folder for base images, which will be used with screenshot for comparison.
 
-`diffFolder`: This will the folder where resemble would try to store the difference image, which can be viewed later.
+`diffFolder`: Mandatory. This will the folder where resemble would try to store the difference image, which can be viewed later.
 
-Usage, these are major functions that help in visual testing
+`prepareBaseImage`: Optional. When `true` then the system replaces all of the baselines related to the test case(s) you ran. This is equivalent of setting the option `prepareBaseImage: true` in all verifications of the test file.
+
+
+### Usage
+
+These are the major functions that help in visual testing:
 
 First one is the `seeVisualDiff` which basically takes two parameters
 1) `baseImage` Name of the base image, this will be the image used for comparison with the screenshot image. It is mandatory to have the same image file names for base and screenshot image.
