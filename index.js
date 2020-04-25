@@ -321,7 +321,10 @@ class ResembleHelper extends Helper {
     }
 
     this.debug("MisMatch Percentage Calculated is " + misMatch);
-    assert(misMatch <= options.tolerance, "MissMatch Percentage " + misMatch);
+
+    if (options.bypassFailure === false) {
+      assert(misMatch <= options.tolerance, "MissMatch Percentage " + misMatch);
+    }
   }
 
   /**
