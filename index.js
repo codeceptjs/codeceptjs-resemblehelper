@@ -320,8 +320,8 @@ class ResembleHelper extends Helper {
       await this._upload(awsC.accessKeyId, awsC.secretAccessKey, awsC.region, awsC.bucketName, baseImage, options.prepareBaseImage)
     }
 
-    this.debug("MisMatch Percentage Calculated is " + misMatch);
-    assert(misMatch <= options.tolerance, "MissMatch Percentage " + misMatch);
+    this.debug("MisMatch Percentage Calculated is " + misMatch + " for baseline " + baseImage);
+    assert(misMatch <= options.tolerance, "Screenshot does not match with the baseline " + baseImage + " when MissMatch Percentage is " + misMatch);
   }
 
   /**
