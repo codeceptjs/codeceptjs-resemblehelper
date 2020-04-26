@@ -115,11 +115,11 @@ I.seeVisualDiff("image.png", {prepareBaseImage: true, tolerance: 1, ignoredBox: 
 After this, that specific mentioned part will be ignored while comparison.
 This works for `seeVisualDiff` and `seeVisualDiffForElement`.
 
-### Bypass Failure
+### Skip Failure
 You can avoid the test fails for a given threshold but yet generates the difference image.
-Just declare an object and pass it in options as `bypassFailure`:
+Just declare an object and pass it in options as `skipFailure`:
 ```
-I.seeVisualDiff("image.png", {prepareBaseImage: true, tolerance: 1, bypassFailure: true});
+I.seeVisualDiff("image.png", {prepareBaseImage: true, tolerance: 1, skipFailure: true});
 ```
 After this, the system generates the difference image but does not fail the test.
 This works for `seeVisualDiff` and `seeVisualDiffForElement`.

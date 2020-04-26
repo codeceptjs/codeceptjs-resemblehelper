@@ -322,7 +322,7 @@ class ResembleHelper extends Helper {
 
     this.debug("MisMatch Percentage Calculated is " + misMatch);
 
-    if (options.bypassFailure === false) {
+    if (options.skipFailure === false) {
       assert(misMatch <= options.tolerance, "MissMatch Percentage " + misMatch);
     }
   }
