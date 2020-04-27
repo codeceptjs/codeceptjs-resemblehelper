@@ -77,9 +77,9 @@ class ResembleHelper extends Helper {
           }
           resolve(data);
           if (data.misMatchPercentage >= tolerance) {
-            mkdirp(getDirName(this.diffFolder + diffImage), function (error) {
-              if (error) return cb(error);
-            });
+            if (!fs.existsSync(getDirName(this.diffFolder + diffImage))) {
+                fs.mkdirSync(getDirName(this.diffFolder + diffImage));
+            }
             fs.writeFileSync(this.diffFolder + diffImage + '.png', data.getBuffer());
             const diffImagePath = path.join(process.cwd(), this.diffFolder + diffImage + '.png');
             this.debug("Diff Image File Saved to: " + diffImagePath);
