@@ -19,6 +19,7 @@ class ResembleHelper extends Helper {
     this.baseFolder = this.resolvePath(config.baseFolder);
     this.diffFolder = this.resolvePath(config.diffFolder);
     this.screenshotFolder = global.output_dir + "/";
+    this.prepareBaseImage = config.prepareBaseImage;
   }
 
   resolvePath(folderPath) {
@@ -177,7 +178,7 @@ class ResembleHelper extends Helper {
    * @param region
    * @param bucketName
    * @param baseImage
-   * @param ifBaseImage - tells if the prepareBaseImage is true or false. If false, then it won't upload the baseImage.
+   * @param ifBaseImage - tells if the prepareBaseImage is true or false. If false, then it won't upload the baseImage. However, this parameter is not considered if the config file has a prepareBaseImage set to true.
    * @returns {Promise<void>}
    */
 
@@ -294,6 +295,10 @@ class ResembleHelper extends Helper {
     if (!options) {
       options = {};
       options.tolerance = 0;
+    }
+
+    if (this.prepareBaseImage) {
+      options.prepareBaseImage = true;
     }
 
     const awsC = this.config.aws;
