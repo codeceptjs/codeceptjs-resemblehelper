@@ -58,9 +58,13 @@ class ResembleHelper extends Helper {
 
     return new Promise((resolve, reject) => {
 
+      if (!options.outputSettings) {
+        options.outputSettings = {};
+      }
       resemble.outputSettings({
         boundingBox: options.boundingBox,
-        ignoredBox: options.ignoredBox
+        ignoredBox: options.ignoredBox,
+        ...options.outputSettings,
       });
 
       this.debug("Tolerance Level Provided " + options.tolerance);
