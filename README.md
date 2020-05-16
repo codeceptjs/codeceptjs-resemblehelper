@@ -1,5 +1,5 @@
 # codeceptjs-resemblehelper
-Helper for resemble.js, used for image comparison in tests with WebdriverIO.
+Helper for resemble.js, used for image comparison in tests with WebdriverIO or Puppeteer.
 
 codeceptjs-resemblehelper is a [CodeceptJS](https://codecept.io/) helper which can be used to compare screenshots and make the tests fail/pass based on the tolerance allowed.
 
@@ -21,19 +21,25 @@ Example:
      "ResembleHelper" : {
        "require": "codeceptjs-resemblehelper",
        "baseFolder": "./tests/screenshots/base/",
-       "diffFolder": "./tests/screenshots/diff/"
+       "diffFolder": "./tests/screenshots/diff/",
+       "prepareBaseImage": true
      }
    }
 }
 ```
 
-To use the Helper, users must provide the two parameters:
+To use the Helper, users may provide the parameters:
 
-`baseFolder`: This is the folder for base images, which will be used with screenshot for comparison.
+`baseFolder`: Mandatory. This is the folder for base images, which will be used with screenshot for comparison.
 
-`diffFolder`: This will the folder where resemble would try to store the difference image, which can be viewed later.
+`diffFolder`: Mandatory. This will the folder where resemble would try to store the difference image, which can be viewed later.
 
-Usage, these are major functions that help in visual testing
+`prepareBaseImage`: Optional. When `true` then the system replaces all of the baselines related to the test case(s) you ran. This is equivalent of setting the option `prepareBaseImage: true` in all verifications of the test file.
+
+
+### Usage
+
+These are the major functions that help in visual testing:
 
 First one is the `seeVisualDiff` which basically takes two parameters
 1) `baseImage` Name of the base image, this will be the image used for comparison with the screenshot image. It is mandatory to have the same image file names for base and screenshot image.
@@ -102,7 +108,7 @@ Scenario('Compare CPU Usage Images', async (I) => {
 ### Ignored Box
 You can also exclude part of the image from comparison, by specifying the excluded area in pixels from the top left.
 Just declare an object and pass it in options as `ignoredBox`:
-```
+```js
 const box = {
     left: 0,
     top: 10,
@@ -114,6 +120,29 @@ I.seeVisualDiff("image.png", {prepareBaseImage: true, tolerance: 1, ignoredBox: 
 ```
 After this, that specific mentioned part will be ignored while comparison.
 This works for `seeVisualDiff` and `seeVisualDiffForElement`.
+
+### resemble.js Output Settings
+You can set further output settings used by resemble.js. Declare an object specifying them and pass it in the options as `outputSettings`:
+
+```js
+const outputSettings = {
+    ignoreAreasColoredWith: {r: 250, g: 250, b: 250, a: 0},
+    // read more here: https://github.com/rsmbl/Resemble.js
+};
+I.seeVisualDiff("image.png", {prepareBaseImage: true, tolerance: 1, outputSettings: outputSettings});
+```
+
+Refer to the [resemble.js](https://github.com/rsmbl/Resemble.js) documentation for available output settings.
+
+### Skip Failure
+You can avoid the test fails for a given threshold but yet generates the difference image.
+Just declare an object and pass it in options as `skipFailure`:
+```
+I.seeVisualDiff("image.png", {prepareBaseImage: true, tolerance: 1, skipFailure: true});
+```
+After this, the system generates the difference image but does not fail the test.
+This works for `seeVisualDiff` and `seeVisualDiffForElement`.
+
 
 ### Allure Reporter
 Allure reports may also be generated directly from the tool. To do so, add
