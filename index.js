@@ -331,7 +331,7 @@ class ResembleHelper extends Helper {
 
     this.debug("MisMatch Percentage Calculated is " + misMatch + " for baseline " + baseImage);
 
-    if (options.skipFailure === false) {
+    if (!options.skipFailure) {
       assert(misMatch <= options.tolerance, "Screenshot does not match with the baseline " + baseImage + " when MissMatch Percentage is " + misMatch);
     }
   }
