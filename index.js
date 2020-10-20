@@ -42,17 +42,19 @@ class ResembleHelper extends Helper {
     const actualImage = this.screenshotFolder + image;
 
     // check whether the base and the screenshot images are present.
-    fs.access(baseImage, fs.constants.F_OK | fs.constants.W_OK, (err) => {
+    fs.access(baseImage, fs.constants.F_OK | fs.constants.R_OK, (err) => {
       if (err) {
         throw new Error(
-          `${baseImage} ${err.code === 'ENOENT' ? 'base image does not exist' : 'is read-only'}`);
+          `${baseImage} ${err.code === 'ENOENT' ? 'base image does not exist' :
+            'base image has an access error'}`);
       }
     });
 
-    fs.access(actualImage, fs.constants.F_OK | fs.constants.W_OK, (err) => {
+    fs.access(actualImage, fs.constants.F_OK | fs.constants.R_OK, (err) => {
       if (err) {
         throw new Error(
-          `${actualImage} ${err.code === 'ENOENT' ? 'screenshot image does not exist' : 'is read-only'}`);
+          `${actualImage} ${err.code === 'ENOENT' ? 'screenshot image does not exist' :
+            'screenshot image has an access error'}`);
       }
     });
 
