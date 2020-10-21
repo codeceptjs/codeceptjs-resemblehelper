@@ -1,5 +1,5 @@
 # codeceptjs-resemblehelper
-Helper for resemble.js, used for image comparison in tests with WebdriverIO or Puppeteer.
+Helper for resemble.js, used for image comparison in tests with Playwright, Webdriver, Puppeteer, Appium, TestCafe! 
 
 codeceptjs-resemblehelper is a [CodeceptJS](https://codecept.io/) helper which can be used to compare screenshots and make the tests fail/pass based on the tolerance allowed.
 
