@@ -42,17 +42,19 @@ class ResembleHelper extends Helper {
     const actualImage = this.screenshotFolder + image;
 
     // check whether the base and the screenshot images are present.
-    fs.access(baseImage, fs.constants.F_OK | fs.constants.W_OK, (err) => {
+    fs.access(baseImage, fs.constants.F_OK | fs.constants.R_OK, (err) => {
       if (err) {
         throw new Error(
-          `${baseImage} ${err.code === 'ENOENT' ? 'base image does not exist' : 'is read-only'}`);
+          `${baseImage} ${err.code === 'ENOENT' ? 'base image does not exist' :
+            'base image has an access error'}`);
       }
     });
 
-    fs.access(actualImage, fs.constants.F_OK | fs.constants.W_OK, (err) => {
+    fs.access(actualImage, fs.constants.F_OK | fs.constants.R_OK, (err) => {
       if (err) {
         throw new Error(
-          `${actualImage} ${err.code === 'ENOENT' ? 'screenshot image does not exist' : 'is read-only'}`);
+          `${actualImage} ${err.code === 'ENOENT' ? 'screenshot image does not exist' :
+            'screenshot image has an access error'}`);
       }
     });
 
@@ -77,16 +79,16 @@ class ResembleHelper extends Helper {
           if (!data.isSameDimensions) {
             let dimensions1 = sizeOf(baseImage);
             let dimensions2 = sizeOf(actualImage);
-            reject(new Error("The base image is of " + dimensions1.height + " X " + dimensions1.width + " and actual image is of " + dimensions2.height + " X " + dimensions2.width + ". Please use images of same dimensions so as to avoid any unexpected results."));
+            reject(new Error(`The base image is of ${dimensions1.height} X ${dimensions1.width} and actual image is of ${dimensions2.height} X ${dimensions2.width}. Please use images of same dimensions so as to avoid any unexpected results.`));
           }
           resolve(data);
           if (data.misMatchPercentage >= tolerance) {
             if (!fs.existsSync(getDirName(this.diffFolder + diffImage))) {
-                fs.mkdirSync(getDirName(this.diffFolder + diffImage));
+              fs.mkdirSync(getDirName(this.diffFolder + diffImage));
             }
             fs.writeFileSync(this.diffFolder + diffImage + '.png', data.getBuffer());
             const diffImagePath = path.join(process.cwd(), this.diffFolder + diffImage + '.png');
-            this.debug("Diff Image File Saved to: " + diffImagePath);
+            this.debug(`Diff Image File Saved to: ${diffImagePath}`);
           }
         }
       });
@@ -114,15 +116,13 @@ class ResembleHelper extends Helper {
    */
   async screenshotElement(selector, name) {
     const helper = this._getHelper();
-    if (this.helpers['Puppeteer']) {
+    if (this.helpers['Puppeteer'] || this.helpers['Playwright']) {
       await helper.waitForVisible(selector);
       const els = await helper._locate(selector);
       if (!els.length) throw new Error(`Element ${selector} couldn't be located`);
       const el = els[0];
 
-      await el.screenshot({
-        path: global.output_dir + "/" + name + '.png'
-      });
+      await el.screenshot({path: `${global.output_dir}/${name}.png`});
     } else if (this.helpers['WebDriver']) {
       await helper.waitForVisible(selector);
       const els = await helper._locate(selector);
@@ -137,7 +137,7 @@ class ResembleHelper extends Helper {
       const { t } = this.helpers['TestCafe'];
 
       await t.takeElementScreenshot(els, name);
-    } else throw new Error("Method only works with Puppeteer, WebDriver or TestCafe helpers.");
+    } else throw new Error("Method only works with Playwright, Puppeteer, WebDriver or TestCafe helpers.");
   }
 
   /**
@@ -308,12 +308,11 @@ class ResembleHelper extends Helper {
       options.tolerance = 0;
     }
 
-    if (this.prepareBaseImage) {
-      options.prepareBaseImage = true;
-    }
-
+    const prepareBaseImage = options.prepareBaseImage !== undefined
+      ? options.prepareBaseImage
+      : (this.prepareBaseImage === true)
     const awsC = this.config.aws;
-    if (awsC !== undefined && options.prepareBaseImage === false) {
+    if (awsC !== undefined && prepareBaseImage === false) {
       await this._download(awsC.accessKeyId, awsC.secretAccessKey, awsC.region, awsC.bucketName, baseImage);
     }
     if (options.prepareBaseImage !== undefined && options.prepareBaseImage) {
@@ -381,7 +380,7 @@ class ResembleHelper extends Helper {
     const helper = this._getHelper();
     await helper.waitForVisible(selector);
     const els = await helper._locate(selector);
-    
+
     if (this.helpers['TestCafe']) {
       if (await els.count != 1) throw new Error(`Element ${selector} couldn't be located or isn't unique on the page`);
     }
@@ -391,7 +390,7 @@ class ResembleHelper extends Helper {
 
     let location, size;
 
-    if (this.helpers['Puppeteer']) {
+    if (this.helpers['Puppeteer'] || this.helpers['Playwright']) {
       const el = els[0];
       const box = await el.boundingBox();
       size = location = box;
@@ -447,7 +446,11 @@ class ResembleHelper extends Helper {
       return this.helpers['TestCafe'];
     }
 
-    throw new Error('No matching helper found. Supported helpers: WebDriver/Appium/Puppeteer/TestCafe');
+    if (this.helpers['Playwright']) {
+      return this.helpers['Playwright'];
+    }
+
+    throw new Error('No matching helper found. Supported helpers: Playwright/WebDriver/Appium/Puppeteer/TestCafe');
   }
 }
 
