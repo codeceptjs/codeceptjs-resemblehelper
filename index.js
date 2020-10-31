@@ -66,6 +66,8 @@ class ResembleHelper extends Helper {
       resemble.outputSettings({
         boundingBox: options.boundingBox,
         ignoredBox: options.ignoredBox,
+        boundingBoxes: options.boundingBoxes,
+        ignoredBoxes: options.ignoredBoxes,
         ...options.outputSettings,
       });
 
@@ -101,7 +103,7 @@ class ResembleHelper extends Helper {
    * @param options
    * @returns {Promise<*>}
    */
-  async _fetchMisMatchPercentage(image, options) {
+  async fetchMisMatchPercentage(image, options) {
     const diffImage = "Diff_" + image.split(".")[0];
     const result = this._compareImages(image, diffImage, options);
     const data = await Promise.resolve(result);
@@ -321,7 +323,7 @@ class ResembleHelper extends Helper {
     if (selector) {
       options.boundingBox = await this._getBoundingBox(selector);
     }
-    const misMatch = await this._fetchMisMatchPercentage(baseImage, options);
+    const misMatch = await this.fetchMisMatchPercentage(baseImage, options);
     this._addAttachment(baseImage, misMatch, options.tolerance);
     this._addMochaContext(baseImage, misMatch, options.tolerance);
     if (awsC !== undefined) {
