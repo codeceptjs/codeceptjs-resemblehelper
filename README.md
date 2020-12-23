@@ -34,7 +34,7 @@ To use the Helper, users may provide the parameters:
 
 `diffFolder`: Mandatory. This will the folder where resemble would try to store the difference image, which can be viewed later.
 
-`prepareBaseImage`: Optional. When `true` then the system replaces all of the baselines related to the test case(s) you ran. This is equivalent of setting the option `prepareBaseImage: true` in all verifications of the test file.
+`prepareBaseImage`: Optional. When `true` then the system replaces all of the baselines related to the test case(s) you ran. This is equivalent of setting the option `prepareBaseImage: true` in all verifications of the test file. If this parameter is not used in `.conf` file, `codeceptjs-resemblehelper` automatically set default value as `true`.
 
 
 ### Usage

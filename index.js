@@ -308,6 +308,10 @@ class ResembleHelper extends Helper {
       options.tolerance = 0;
     }
 
+    if (!options.tolerance){
+      options.tolerance = 0;
+    }
+
     const prepareBaseImage = options.prepareBaseImage !== undefined
       ? options.prepareBaseImage
       : (this.prepareBaseImage === true)
@@ -315,15 +319,19 @@ class ResembleHelper extends Helper {
     if (awsC !== undefined && prepareBaseImage === false) {
       await this._download(awsC.accessKeyId, awsC.secretAccessKey, awsC.region, awsC.bucketName, baseImage);
     }
-    if (options.prepareBaseImage !== undefined && options.prepareBaseImage) {
+    if (
+      (this.prepareBaseImage === true &&
+        options.prepareBaseImage === undefined) ||
+      (this.prepareBaseImage !== undefined && options.prepareBaseImage === true)
+    ) {
       await this._prepareBaseImage(baseImage);
     }
     if (selector) {
       options.boundingBox = await this._getBoundingBox(selector);
     }
     const misMatch = await this._fetchMisMatchPercentage(baseImage, options);
-    this._addAttachment(baseImage, misMatch, options.tolerance);
-    this._addMochaContext(baseImage, misMatch, options.tolerance);
+    await this._addAttachment(baseImage, misMatch, options.tolerance);
+    await this._addMochaContext(baseImage, misMatch, options.tolerance);
     if (awsC !== undefined) {
       await this._upload(awsC.accessKeyId, awsC.secretAccessKey, awsC.region, awsC.bucketName, baseImage, options.prepareBaseImage)
     }
