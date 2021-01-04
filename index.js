@@ -322,7 +322,7 @@ class ResembleHelper extends Helper {
     if (
       (this.prepareBaseImage === true &&
         options.prepareBaseImage === undefined) ||
-      (this.prepareBaseImage !== undefined && options.prepareBaseImage === true)
+      (options.prepareBaseImage === true)
     ) {
       await this._prepareBaseImage(baseImage);
     }
@@ -365,7 +365,13 @@ class ResembleHelper extends Helper {
       }
     });
 
-    fs.copyFileSync(this.screenshotFolder + screenShotImage, this.baseFolder + screenShotImage);
+    try {
+      await fs.promises.access(this.baseFolder + screenShotImage, fs.constants.F_OK | fs.constants.W_OK);
+      this.debug("Existing base image is used from: " + this.baseFolder + screenShotImage);
+    } catch(e){
+      fs.copyFileSync(this.screenshotFolder + screenShotImage, this.baseFolder + screenShotImage);
+      this.debug("Base image: " + screenShotImage + " was created." );
+    }
   }
 
   /**
