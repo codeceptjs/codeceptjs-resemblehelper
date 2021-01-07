@@ -35,6 +35,7 @@ To use the Helper, users may provide the parameters:
 `diffFolder`: Mandatory. This will the folder where resemble would try to store the difference image, which can be viewed later.
 
 `prepareBaseImage`: Optional. When `true` then the system replaces all of the baselines related to the test case(s) you ran. This is equivalent of setting the option `prepareBaseImage: true` in all verifications of the test file.
+ If this parameter is missing in `.conf` file, value is `undefined`.
 
 
 ### Usage
@@ -43,7 +44,7 @@ These are the major functions that help in visual testing:
 
 First one is the `seeVisualDiff` which basically takes two parameters
 1) `baseImage` Name of the base image, this will be the image used for comparison with the screenshot image. It is mandatory to have the same image file names for base and screenshot image.
-2) `options` options can be passed which include `prepaseBaseImage` and `tolerance`.
+2) `options` options can be passed which include `prepareBaseImage` and `tolerance`.
 
 ```js
     /**
@@ -104,6 +105,39 @@ Scenario('Compare CPU Usage Images', async (I) => {
 });
 ```
 > Note: `seeVisualDiff` and `seeVisualDiffElement` work only when the dimensions of the screenshot as well as the base image are same so as to avoid unexpected results.
+
+### Prepare base images behavior states 
+
+Is it needed to have prepared base image before and only compare it, or create new base image? It depends how are set:
+- `prepareBaseImage` parameter in config
+- `options` in test (e.g. `I.seeVisualDiff("image.png", {prepareBaseImage: true})`)
+- does base image already exists, or is missing?
+
+```
+| state |   config   |  options  | base image already exists? |       behavior         |
+| ----- | ---------- | --------- | -------------------------- | ---------------------- |
+|   1   |  undefined | undefined |           yes              |        compare         |
+|   2   |  undefined | undefined |           no               | create new base image  |
+|   3   |  undefined |    true   |           yes              | create new base image  |
+|   4   |  undefined |    true   |           no               | create new base image  |
+|   5   |  undefined |   false   |           yes              |        compare         |
+|   6   |  undefined |   false   |           no               |          Error         |
+| ----- | ---------- | --------- | -------------------------- | ---------------------- |
+|   7   |    true    | undefined |           yes              | create new base image  |
+|   8   |    true    | undefined |           no               | create new base image  |
+|   9   |    true    |    true   |           yes              | create new base image  |
+|  10   |    true    |    true   |           no               | create new base image  |
+|  11   |    true    |   false   |           yes              |        compare         |
+|  12   |    true    |   false   |           no               |          Error         |
+| ----- | ---------- | --------- | -------------------------- | ---------------------- |
+|  13   |    false   | undefined |           yes              |        compare         |
+|  14   |    false   | undefined |           no               |          Error         |
+|  15   |    false   |    true   |           yes              | create new base image  |
+|  16   |    false   |    true   |           no               | create new base image  |
+|  17   |    false   |   false   |           yes              |        compare         |
+|  18   |    false   |   false   |           no               |          Error         |
+| ----- | ---------- | --------- | -------------------------- | ---------------------- |
+```
 
 ### Ignored Box
 You can also exclude part of the image from comparison, by specifying the excluded area in pixels from the top left.

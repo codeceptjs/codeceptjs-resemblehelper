@@ -2,6 +2,10 @@
   "name": "codeceptjs-resemblehelper",
   "version": "1.9.3",
   "description": "Resemble Js helper for CodeceptJS, with Support for Playwright, Webdriver, TestCafe, Puppeteer & Appium",
+  "scripts": {
+    "lint": "eslint index.js",
+    "lint-fix": "eslint index.js --fix"
+  },
   "repository": {
     "type": "git",
     "url": "git@github.com:Percona-Lab/codeceptjs-resemblehelper.git"
@@ -18,7 +22,10 @@
   },
   "devDependencies": {
     "allure-commandline": "^2.13.0",
-    "codeceptjs": "^2.3.5",
+    "codeceptjs": "^3.0.4",
+    "eslint": "^7.17.0",
+    "eslint-config-airbnb-base": "^14.2.1",
+    "eslint-plugin-import": "^2.22.1",
     "mocha": "^6.2.2",
     "mochawesome": "^4.1.0"
   },

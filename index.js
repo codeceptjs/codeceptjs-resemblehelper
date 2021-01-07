@@ -1,4 +1,4 @@
-const resemble = require("resemblejs");
+const resemble = require('resemblejs');
 const fs = require('fs');
 const assert = require('assert');
 const mkdirp = require('mkdirp');
@@ -13,18 +13,17 @@ const sizeOf = require('image-size');
  */
 
 class ResembleHelper extends Helper {
-
   constructor(config) {
     super(config);
     this.baseFolder = this.resolvePath(config.baseFolder);
     this.diffFolder = this.resolvePath(config.diffFolder);
-    this.screenshotFolder = global.output_dir + "/";
+    this.screenshotFolder = `${global.output_dir}/`;
     this.prepareBaseImage = config.prepareBaseImage;
   }
 
   resolvePath(folderPath) {
     if (!path.isAbsolute(folderPath)) {
-      return path.resolve(global.codecept_dir, folderPath) + "/";
+      return `${path.resolve(global.codecept_dir, folderPath)}/`;
     }
     return folderPath;
   }
@@ -45,21 +44,22 @@ class ResembleHelper extends Helper {
     fs.access(baseImage, fs.constants.F_OK | fs.constants.R_OK, (err) => {
       if (err) {
         throw new Error(
-          `${baseImage} ${err.code === 'ENOENT' ? 'base image does not exist' :
-            'base image has an access error'}`);
+          `${baseImage} ${err.code === 'ENOENT' ? 'base image does not exist'
+            : 'base image has an access error'}`,
+        );
       }
     });
 
     fs.access(actualImage, fs.constants.F_OK | fs.constants.R_OK, (err) => {
       if (err) {
         throw new Error(
-          `${actualImage} ${err.code === 'ENOENT' ? 'screenshot image does not exist' :
-            'screenshot image has an access error'}`);
+          `${actualImage} ${err.code === 'ENOENT' ? 'screenshot image does not exist'
+            : 'screenshot image has an access error'}`,
+        );
       }
     });
 
     return new Promise((resolve, reject) => {
-
       if (!options.outputSettings) {
         options.outputSettings = {};
       }
@@ -69,7 +69,7 @@ class ResembleHelper extends Helper {
         ...options.outputSettings,
       });
 
-      this.debug("Tolerance Level Provided " + options.tolerance);
+      this.debug(`Tolerance Level Provided ${options.tolerance}`);
       const tolerance = options.tolerance;
 
       resemble.compare(baseImage, actualImage, options, (err, data) => {
@@ -86,8 +86,8 @@ class ResembleHelper extends Helper {
             if (!fs.existsSync(getDirName(this.diffFolder + diffImage))) {
               fs.mkdirSync(getDirName(this.diffFolder + diffImage));
             }
-            fs.writeFileSync(this.diffFolder + diffImage + '.png', data.getBuffer());
-            const diffImagePath = path.join(process.cwd(), this.diffFolder + diffImage + '.png');
+            fs.writeFileSync(`${this.diffFolder + diffImage}.png`, data.getBuffer());
+            const diffImagePath = path.join(process.cwd(), `${this.diffFolder + diffImage}.png`);
             this.debug(`Diff Image File Saved to: ${diffImagePath}`);
           }
         }
@@ -102,7 +102,7 @@ class ResembleHelper extends Helper {
    * @returns {Promise<*>}
    */
   async _fetchMisMatchPercentage(image, options) {
-    const diffImage = "Diff_" + image.split(".")[0];
+    const diffImage = `Diff_${image.split('.')[0]}`;
     const result = this._compareImages(image, diffImage, options);
     const data = await Promise.resolve(result);
     return data.misMatchPercentage;
@@ -122,14 +122,14 @@ class ResembleHelper extends Helper {
       if (!els.length) throw new Error(`Element ${selector} couldn't be located`);
       const el = els[0];
 
-      await el.screenshot({path: `${global.output_dir}/${name}.png`});
+      await el.screenshot({ path: `${global.output_dir}/${name}.png` });
     } else if (this.helpers['WebDriver']) {
       await helper.waitForVisible(selector);
       const els = await helper._locate(selector);
       if (!els.length) throw new Error(`Element ${selector} couldn't be located`);
       const el = els[0];
 
-      await el.saveScreenshot(this.screenshotFolder + name + '.png');
+      await el.saveScreenshot(`${this.screenshotFolder + name}.png`);
     } else if (this.helpers['TestCafe']) {
       await helper.waitForVisible(selector);
       const els = await helper._locate(selector);
@@ -137,7 +137,7 @@ class ResembleHelper extends Helper {
       const { t } = this.helpers['TestCafe'];
 
       await t.takeElementScreenshot(els, name);
-    } else throw new Error("Method only works with Playwright, Puppeteer, WebDriver or TestCafe helpers.");
+    } else throw new Error('Method only works with Playwright, Puppeteer, WebDriver or TestCafe helpers.');
   }
 
   /**
@@ -150,7 +150,7 @@ class ResembleHelper extends Helper {
 
   async _addAttachment(baseImage, misMatch, tolerance) {
     const allure = codeceptjs.container.plugins('allure');
-    const diffImage = "Diff_" + baseImage.split(".")[0] + ".png";
+    const diffImage = `Diff_${baseImage.split('.')[0]}.png`;
 
     if (allure !== undefined && misMatch >= tolerance) {
       allure.addAttachment('Base Image', fs.readFileSync(this.baseFolder + baseImage), 'image/png');
@@ -169,14 +169,14 @@ class ResembleHelper extends Helper {
 
   async _addMochaContext(baseImage, misMatch, tolerance) {
     const mocha = this.helpers['Mochawesome'];
-    const diffImage = "Diff_" + baseImage.split(".")[0] + ".png";
+    const diffImage = `Diff_${baseImage.split('.')[0]}.png`;
 
     if (mocha !== undefined && misMatch >= tolerance) {
-      await mocha.addMochawesomeContext("Base Image");
+      await mocha.addMochawesomeContext('Base Image');
       await mocha.addMochawesomeContext(this.baseFolder + baseImage);
-      await mocha.addMochawesomeContext("ScreenShot Image");
+      await mocha.addMochawesomeContext('ScreenShot Image');
       await mocha.addMochawesomeContext(this.screenshotFolder + baseImage);
-      await mocha.addMochawesomeContext("Diff Image");
+      await mocha.addMochawesomeContext('Diff Image');
       await mocha.addMochawesomeContext(this.diffFolder + diffImage);
     }
   }
@@ -194,11 +194,11 @@ class ResembleHelper extends Helper {
    */
 
   async _upload(accessKeyId, secretAccessKey, region, bucketName, baseImage, ifBaseImage) {
-    console.log("Starting Upload... ");
+    console.log('Starting Upload... ');
     const s3 = new AWS.S3({
       accessKeyId: accessKeyId,
       secretAccessKey: secretAccessKey,
-      region: region
+      region: region,
     });
     fs.readFile(this.screenshotFolder + baseImage, (err, data) => {
       if (err) throw err;
@@ -206,25 +206,25 @@ class ResembleHelper extends Helper {
       const params = {
         Bucket: bucketName,
         Key: `output/${baseImage}`,
-        Body: base64data
+        Body: base64data,
       };
       s3.upload(params, (uErr, uData) => {
         if (uErr) throw uErr;
         console.log(`Screenshot Image uploaded successfully at ${uData.Location}`);
       });
     });
-    fs.readFile(this.diffFolder + "Diff_" + baseImage, (err, data) => {
-      if (err) console.log("Diff image not generated");
+    fs.readFile(`${this.diffFolder}Diff_${baseImage}`, (err, data) => {
+      if (err) console.log('Diff image not generated');
       else {
         let base64data = new Buffer(data, 'binary');
         const params = {
           Bucket: bucketName,
           Key: `diff/Diff_${baseImage}`,
-          Body: base64data
+          Body: base64data,
         };
         s3.upload(params, (uErr, uData) => {
           if (uErr) throw uErr;
-          console.log(`Diff Image uploaded successfully at ${uData.Location}`)
+          console.log(`Diff Image uploaded successfully at ${uData.Location}`);
         });
       }
     });
@@ -236,16 +236,16 @@ class ResembleHelper extends Helper {
           const params = {
             Bucket: bucketName,
             Key: `base/${baseImage}`,
-            Body: base64data
+            Body: base64data,
           };
           s3.upload(params, (uErr, uData) => {
             if (uErr) throw uErr;
-            console.log(`Base Image uploaded at ${uData.Location}`)
+            console.log(`Base Image uploaded at ${uData.Location}`);
           });
         }
       });
     } else {
-      console.log("Not Uploading base Image");
+      console.log('Not Uploading base Image');
     }
   }
 
@@ -260,22 +260,22 @@ class ResembleHelper extends Helper {
    */
 
   _download(accessKeyId, secretAccessKey, region, bucketName, baseImage) {
-    console.log("Starting Download...");
+    console.log('Starting Download...');
     const s3 = new AWS.S3({
       accessKeyId: accessKeyId,
       secretAccessKey: secretAccessKey,
-      region: region
+      region: region,
     });
     const params = {
       Bucket: bucketName,
-      Key: `base/${baseImage}`
+      Key: `base/${baseImage}`,
     };
     return new Promise((resolve) => {
       s3.getObject(params, (err, data) => {
         if (err) console.error(err);
         console.log(this.baseFolder + baseImage);
         fs.writeFileSync(this.baseFolder + baseImage, data.Body);
-        resolve("File Downloaded Successfully");
+        resolve('File Downloaded Successfully');
       });
     });
   }
@@ -308,30 +308,38 @@ class ResembleHelper extends Helper {
       options.tolerance = 0;
     }
 
+    if (!options.tolerance) {
+      options.tolerance = 0;
+    }
+
     const prepareBaseImage = options.prepareBaseImage !== undefined
       ? options.prepareBaseImage
-      : (this.prepareBaseImage === true)
+      : (this.prepareBaseImage === true);
     const awsC = this.config.aws;
     if (awsC !== undefined && prepareBaseImage === false) {
       await this._download(awsC.accessKeyId, awsC.secretAccessKey, awsC.region, awsC.bucketName, baseImage);
     }
-    if (options.prepareBaseImage !== undefined && options.prepareBaseImage) {
-      await this._prepareBaseImage(baseImage);
+
+    if ((this.prepareBaseImage === true && options.prepareBaseImage === undefined)
+    || (options.prepareBaseImage === true)
+    || (this.prepareBaseImage === undefined && options.prepareBaseImage === undefined)) {
+      await this._prepareBaseImage(baseImage, options);
     }
+
     if (selector) {
       options.boundingBox = await this._getBoundingBox(selector);
     }
     const misMatch = await this._fetchMisMatchPercentage(baseImage, options);
-    this._addAttachment(baseImage, misMatch, options.tolerance);
-    this._addMochaContext(baseImage, misMatch, options.tolerance);
+    await this._addAttachment(baseImage, misMatch, options.tolerance);
+    await this._addMochaContext(baseImage, misMatch, options.tolerance);
     if (awsC !== undefined) {
-      await this._upload(awsC.accessKeyId, awsC.secretAccessKey, awsC.region, awsC.bucketName, baseImage, options.prepareBaseImage)
+      await this._upload(awsC.accessKeyId, awsC.secretAccessKey, awsC.region, awsC.bucketName, baseImage, options.prepareBaseImage);
     }
 
-    this.debug("MisMatch Percentage Calculated is " + misMatch + " for baseline " + baseImage);
+    this.debug(`MisMatch Percentage Calculated is ${misMatch} for baseline ${baseImage}`);
 
     if (!options.skipFailure) {
-      assert(misMatch <= options.tolerance, "Screenshot does not match with the baseline " + baseImage + " when MissMatch Percentage is " + misMatch);
+      assert(misMatch <= options.tolerance, `Screenshot does not match with the baseline ${baseImage} when MissMatch Percentage is ${misMatch}`);
     }
   }
 
@@ -339,25 +347,49 @@ class ResembleHelper extends Helper {
    * Function to prepare Base Images from Screenshots
    *
    * @param screenShotImage  Name of the screenshot Image (Screenshot Image Path is taken from Configuration)
+   * @param options Options ex {prepareBaseImage: true, tolerance: 5} along with Resemble JS Options, read more here: https://github.com/rsmbl/Resemble.js
    */
-  async _prepareBaseImage(screenShotImage) {
+  async _prepareBaseImage(screenShotImage, options) {
     await this._createDir(this.baseFolder + screenShotImage);
 
     fs.access(this.screenshotFolder + screenShotImage, fs.constants.F_OK | fs.constants.W_OK, (err) => {
       if (err) {
         throw new Error(
-          `${this.screenshotFolder + screenShotImage} ${err.code === 'ENOENT' ? 'does not exist' : 'is read-only'}`);
+          `${this.screenshotFolder + screenShotImage} ${err.code === 'ENOENT' ? 'does not exist' : 'is read-only'}`,
+        );
       }
     });
 
     fs.access(this.baseFolder, fs.constants.F_OK | fs.constants.W_OK, (err) => {
       if (err) {
         throw new Error(
-          `${this.baseFolder} ${err.code === 'ENOENT' ? 'does not exist' : 'is read-only'}`);
+          `${this.baseFolder} ${err.code === 'ENOENT' ? 'does not exist' : 'is read-only'}`,
+        );
       }
     });
 
-    fs.copyFileSync(this.screenshotFolder + screenShotImage, this.baseFolder + screenShotImage);
+    try {
+      await fs.promises.access(this.baseFolder + screenShotImage, fs.constants.F_OK | fs.constants.W_OK);
+
+      if (options.prepareBaseImage === true) {
+        this.debug('Test option is set as: prepareBaseImage = true');
+        this.debug('Creating base image ...');
+        fs.copyFileSync(this.screenshotFolder + screenShotImage, this.baseFolder + screenShotImage);
+        this.debug(`Base image: ${screenShotImage} is created.`);
+      } else if (this.prepareBaseImage === true && options.prepareBaseImage === undefined) {
+        this.debug('Global config is set as: prepareBaseImage = true');
+        this.debug('Creating base image ...');
+        fs.copyFileSync(this.screenshotFolder + screenShotImage, this.baseFolder + screenShotImage);
+        this.debug(`Base image: ${screenShotImage} is created.`);
+      } else {
+        this.debug(`Found existing base image: ${this.baseFolder}${screenShotImage} and use it for compare.`);
+      }
+    } catch (e) {
+      this.debug(`Existing base image with name ${screenShotImage} was not found.`);
+      this.debug('Creating base image ...');
+      fs.copyFileSync(this.screenshotFolder + screenShotImage, this.baseFolder + screenShotImage);
+      this.debug(`Base image: ${screenShotImage} is created.`);
+    }
   }
 
   /**
@@ -382,13 +414,10 @@ class ResembleHelper extends Helper {
     const els = await helper._locate(selector);
 
     if (this.helpers['TestCafe']) {
-      if (await els.count != 1) throw new Error(`Element ${selector} couldn't be located or isn't unique on the page`);
-    }
-    else {
-      if (!els.length) throw new Error(`Element ${selector} couldn't be located`);
-    }
+      if (await els.count !== 1) throw new Error(`Element ${selector} couldn't be located or isn't unique on the page`);
+    } else if (!els.length) throw new Error(`Element ${selector} couldn't be located`);
 
-    let location, size;
+    let location; let size;
 
     if (this.helpers['Puppeteer'] || this.helpers['Playwright']) {
       const el = els[0];
@@ -411,7 +440,7 @@ class ResembleHelper extends Helper {
     }
 
     if (!size) {
-      throw new Error("Cannot get element size!");
+      throw new Error('Cannot get element size!');
     }
 
     const bottom = size.height + location.y;
@@ -420,7 +449,7 @@ class ResembleHelper extends Helper {
       left: location.x,
       top: location.y,
       right: right,
-      bottom: bottom
+      bottom: bottom,
     };
 
     this.debugSection('Area', JSON.stringify(boundingBox));
