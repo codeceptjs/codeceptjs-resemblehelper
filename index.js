@@ -122,14 +122,14 @@ class ResembleHelper extends Helper {
       if (!els.length) throw new Error(`Element ${selector} couldn't be located`);
       const el = els[0];
 
-      await el.screenshot({ path: `${global.output_dir}/${name}.png` });
+      await el.screenshot({ path: `${global.output_dir}/${name}` });
     } else if (this.helpers['WebDriver']) {
       await helper.waitForVisible(selector);
       const els = await helper._locate(selector);
       if (!els.length) throw new Error(`Element ${selector} couldn't be located`);
       const el = els[0];
 
-      await el.saveScreenshot(`${this.screenshotFolder + name}.png`);
+      await el.saveScreenshot(`${this.screenshotFolder + name}`);
     } else if (this.helpers['TestCafe']) {
       await helper.waitForVisible(selector);
       const els = await helper._locate(selector);
