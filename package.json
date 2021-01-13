@@ -3,8 +3,11 @@
   "version": "1.9.3",
   "description": "Resemble Js helper for CodeceptJS, with Support for Playwright, Webdriver, TestCafe, Puppeteer & Appium",
   "scripts": {
-    "lint": "eslint index.js",
-    "lint-fix": "eslint index.js --fix"
+    "lint": "eslint index.js tools configs tests",
+    "lint-fix": "eslint index.js tools configs tests --fix",
+    "config-prepareBaseImage:undefined": "codeceptjs run --config=./configs/prepareBaseImage-undefined.conf.js  --debug",
+    "config-prepareBaseImage:true": "codeceptjs run --config=./configs/prepareBaseImage-true.conf.js  --debug",
+    "config-prepareBaseImage:false": "codeceptjs run --config=./configs/prepareBaseImage-false.conf.js  --debug"
   },
   "repository": {
     "type": "git",
@@ -21,13 +24,16 @@
     "image-size": "^0.8.3"
   },
   "devDependencies": {
+    "@wdio/cli": "^6.12.0",
     "allure-commandline": "^2.13.0",
     "codeceptjs": "^3.0.4",
+    "codeceptjs-chai": "^2.2.0",
     "eslint": "^7.17.0",
     "eslint-config-airbnb-base": "^14.2.1",
     "eslint-plugin-import": "^2.22.1",
     "mocha": "^6.2.2",
-    "mochawesome": "^4.1.0"
+    "mochawesome": "^4.1.0",
+    "webdriverio": "^6.12.0"
   },
   "keywords": [
     "codeceptJS",
