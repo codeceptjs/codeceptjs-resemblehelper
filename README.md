@@ -108,10 +108,11 @@ Scenario('Compare CPU Usage Images', async (I) => {
 
 ### Prepare base images behavior states 
 
-Is it needed to have prepared base image before and only compare it, or create new base image? It depends how are set:
+Is it needed to have prepared base image before and only compare it, or create new base image? It depends how for every test is set:
 - `prepareBaseImage` parameter in config
 - `options` in test (e.g. `I.seeVisualDiff("image.png", {prepareBaseImage: true})`)
 - does base image already exists, or is missing?
+__Note__: Every state(rule/condition) is valid for every one instance of base image
 
 ```
 | state |   config   |  options  | base image already exists? |       behavior         |
