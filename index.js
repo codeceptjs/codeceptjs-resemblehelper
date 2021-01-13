@@ -382,7 +382,7 @@ class ResembleHelper extends Helper {
         fs.copyFileSync(this.screenshotFolder + screenShotImage, this.baseFolder + screenShotImage);
         this.debug(`Base image: ${screenShotImage} is created.`);
       } else {
-        this.debug(`Found existing base image: ${this.baseFolder}${screenShotImage} and use it for compare.`);
+        this.debug(`Found existing base image: ${screenShotImage} and use it for compare.`);
       }
     } catch (e) {
       this.debug(`Existing base image with name ${screenShotImage} was not found.`);
@@ -400,6 +400,26 @@ class ResembleHelper extends Helper {
    */
   _createDir(directory) {
     mkdirp.sync(getDirName(directory));
+  }
+
+  /**
+   * Function for delete screenshot image
+   * @example
+   * I.deleteScreenshot('./folder/image.png')
+   * @param pathToFile string
+   * @returns {Promise<void>}
+   */
+  async deleteScreenshot(pathToFile) {
+    fs.unlink(pathToFile, (err) => {
+      if (err && err.code === 'ENOENT') {
+        console.info(`Current directory: " ${process.cwd()}`);
+        console.info('File doesn\'t exist, can\'t remove it.');
+      } else if (err) {
+        console.error('Error occurred while trying to remove file');
+      } else {
+        console.info(`File ${pathToFile} removed.`);
+      }
+    });
   }
 
   /**
