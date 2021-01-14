@@ -19,8 +19,8 @@ exports.config = {
       baseFolder: '../tests/screenshots/base/',
       diffFolder: '../tests/screenshots/diff/',
     },
-    ChaiWrapper: {
-      require: 'codeceptjs-chai',
+    AssertWrapper: {
+      require: 'codeceptjs-assert',
     },
   },
   include: {

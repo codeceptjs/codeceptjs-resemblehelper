@@ -24,8 +24,8 @@ exports.config = {
       */
       prepareBaseImage: true,
     },
-    ChaiWrapper: {
-      require: 'codeceptjs-chai',
+    AssertWrapper: {
+      require: 'codeceptjs-assert',
     },
   },
   include: {
