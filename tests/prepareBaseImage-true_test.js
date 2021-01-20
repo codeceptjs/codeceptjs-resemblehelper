@@ -89,7 +89,7 @@ Scenario(
   },
 );
 
-Scenario(
+xScenario(
   'TestState:12 config = true, options = false, baseImageExists = false',
   async ({ I }) => {
     I.say('Error will be shown');

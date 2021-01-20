@@ -1,0 +1,19 @@
+# To execute this docker-compose yml file use `docker-compose -f <file_name> up`
+# Add the `-d` flag at the end for detached execution
+version: '3.7'
+
+services:
+  selenoid:
+    image: aerokube/selenoid:latest-release
+    volumes: 
+      - /var/run/docker.sock:/var/run/docker.sock
+      - ../:/etc/selenoid/:ro
+      - ../output/video/:/opt/selenoid/video/
+    command: [ "-container-network", "visual-tests_default"]
+
+  tests:
+    build:
+      context: ../
+      dockerfile: docker/Dockerfile
+    depends_on:
+      - selenoid

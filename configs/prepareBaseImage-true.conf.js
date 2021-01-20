@@ -10,6 +10,7 @@ exports.config = {
   helpers: {
     WebDriver: {
       url: 'http://localhost',
+      host: 'selenoid',
       browser: 'chrome',
       windowSize: '1200x800',
     },
@@ -35,6 +36,15 @@ exports.config = {
   mocha: {},
   name: 'codeceptjs-resemblehelper',
   plugins: {
+    selenoid: {
+      enabled: true,
+      deletePassed: true,
+      autoCreate: false,
+      autoStart: false,
+      sessionTimeout: '30m',
+      enableVideo: false,
+      enableLog: true,
+    },
     pauseOnFail: {},
     tryTo: {
       enabled: true,

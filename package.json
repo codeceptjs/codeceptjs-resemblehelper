@@ -5,9 +5,9 @@
   "scripts": {
     "lint": "eslint index.js tools configs tests",
     "lint-fix": "eslint index.js tools configs tests --fix",
-    "config-prepareBaseImage:undefined": "codeceptjs run --config=./configs/prepareBaseImage-undefined.conf.js  --debug",
-    "config-prepareBaseImage:true": "codeceptjs run --config=./configs/prepareBaseImage-true.conf.js  --debug",
-    "config-prepareBaseImage:false": "codeceptjs run --config=./configs/prepareBaseImage-false.conf.js  --debug"
+    "conf:prepareBaseImage_undefined": "codeceptjs run --config=./configs/prepareBaseImage-undefined.conf.js  --debug",
+    "conf:prepareBaseImage_true": "codeceptjs run --config=./configs/prepareBaseImage-true.conf.js  --debug",
+    "conf:prepareBaseImage_false": "codeceptjs run --config=./configs/prepareBaseImage-false.conf.js  --debug"
   },
   "repository": {
     "type": "git",
