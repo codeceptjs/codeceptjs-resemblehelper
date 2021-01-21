@@ -86,7 +86,7 @@ Scenario(
   },
 );
 
-Scenario(
+xScenario(
   'TestState:6 config = undefined, options = false, baseImageExists = false',
   async ({ I }) => {
     I.say('Error will be shown');
