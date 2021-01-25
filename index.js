@@ -65,7 +65,7 @@ class ResembleHelper extends Helper {
       }
       resemble.outputSettings({
         boundingBox: options.boundingBox,
-        ignoredBox: options.ignoredBox,
+        ignoredBox: options.ignoredBox || options.ignoredElement,
         ...options.outputSettings,
       });
 
@@ -312,6 +312,10 @@ class ResembleHelper extends Helper {
       options.tolerance = 0;
     }
 
+    if (options.ignoredElement !== undefined) {
+      options.ignoredElement = await this._getElementCoordinates(options.ignoredElement);
+    }
+
     const prepareBaseImage = options.prepareBaseImage !== undefined
       ? options.prepareBaseImage
       : (this.prepareBaseImage === true);
@@ -475,6 +479,42 @@ class ResembleHelper extends Helper {
     this.debugSection('Area', JSON.stringify(boundingBox));
 
     return boundingBox;
+  }
+
+  /**
+   * Function for get element coordinates, which should be later excluded from diff comparison
+   *
+   * @param selector CSS|XPath|ID selector
+   * @returns {Promise<{ignoredElement: {left: *, top: *, right: *, bottom: *}}>}
+   */
+  async _getElementCoordinates(selector) {
+    const helper = this._getHelper();
+    await helper.waitForVisible(selector);
+    const els = await helper._locate(selector);
+    let location; let size;
+
+    if (this.helpers['WebDriver'] || this.helpers['Appium']) {
+      const el = els[0];
+      location = await el.getLocation();
+      size = await el.getSize();
+    }
+
+    if (!size) {
+      throw new Error('Cannot get element size!');
+    }
+
+    const bottom = size.height + location.y;
+    const right = size.width + location.x;
+    const ignoredElement = {
+      left: location.x,
+      top: location.y,
+      right: right,
+      bottom: bottom,
+    };
+
+    this.debug('Element coordinates: ', JSON.stringify(ignoredElement));
+
+    return ignoredElement;
   }
 
   _getHelper() {
