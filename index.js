@@ -65,7 +65,7 @@ class ResembleHelper extends Helper {
       }
       resemble.outputSettings({
         boundingBox: options.boundingBox,
-        ignoredBox: options.ignoredBox || options.ignoredElement,
+        ignoredBox: options.ignoredBox,
         ...options.outputSettings,
       });
 
@@ -313,7 +313,7 @@ class ResembleHelper extends Helper {
     }
 
     if (options.ignoredElement !== undefined) {
-      options.ignoredElement = await this._getElementCoordinates(options.ignoredElement);
+      options.ignoredBox = await this._getElementCoordinates(options.ignoredElement);
     }
 
     const prepareBaseImage = options.prepareBaseImage !== undefined
@@ -485,7 +485,7 @@ class ResembleHelper extends Helper {
    * Function for get element coordinates, which should be later excluded from diff comparison
    *
    * @param selector CSS|XPath|ID selector
-   * @returns {Promise<{ignoredElement: {left: *, top: *, right: *, bottom: *}}>}
+   * @returns {Promise<{ignoredBox: {left: *, top: *, right: *, bottom: *}}>}
    */
   async _getElementCoordinates(selector) {
     const helper = this._getHelper();
@@ -505,16 +505,16 @@ class ResembleHelper extends Helper {
 
     const bottom = size.height + location.y;
     const right = size.width + location.x;
-    const ignoredElement = {
+    const ignoredBox = {
       left: location.x,
       top: location.y,
       right: right,
       bottom: bottom,
     };
 
-    this.debug('Element coordinates: ', JSON.stringify(ignoredElement));
+    this.debug('Element coordinates: ', JSON.stringify(ignoredBox));
 
-    return ignoredElement;
+    return ignoredBox;
   }
 
   _getHelper() {
