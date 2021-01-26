@@ -156,6 +156,19 @@ I.seeVisualDiff("image.png", {prepareBaseImage: true, tolerance: 1, ignoredBox: 
 After this, that specific mentioned part will be ignored while comparison.
 This works for `seeVisualDiff` and `seeVisualDiffForElement`.
 
+### Ignored Element
+Similar as ignored box, when specific element is excluded from image comparison. You need to pass it in options as `ignoredElement`.
+```js
+Scenario('Ignore element for screenshot visual diff', async ({ I }) => {
+    // I.amOnPage('https://the-internet.herokuapp.com/context_menu');
+    // I.saveScreenshot('IGNORED.png');
+    await I.seeVisualDiff('IGNORED.png', {ignoredElement: '#hot-spot'});
+  },
+);
+```
+After this, specific element will be ignored while comparison.
+This works for `seeVisualDiff`.
+
 ### resemble.js Output Settings
 You can set further output settings used by resemble.js. Declare an object specifying them and pass it in the options as `outputSettings`:
 
