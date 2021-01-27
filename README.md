@@ -169,6 +169,43 @@ Scenario('Ignore element for screenshot visual diff', async ({ I }) => {
 After this, specific element will be ignored while comparison.
 This works for `seeVisualDiff`.
 
+### Ignored Boxes
+Similar as Ignored Box, but with more excluded parts of the image comparison specifying the excluded area in pixels from top left.
+```js
+ const box1 = {
+     left: 100,
+     top: 200,
+     right: 300,
+     bottom: 600
+ };
+
+ const box2 = {
+    left: 400,
+    top: 100,
+    right: 500,
+    bottom: 600
+};
+
+await I.seeVisualDiff('image.png', { ignoredBoxes: [box1, box2] });  
+```
+After this, that specific mentioned parts will be ignored while comparison.
+This works for `seeVisualDiff`.
+
+### Ignored elements
+Similar as Ignored element, but it possible to specific more elements, which should be excluded from image comparison. 
+```js 
+Scenario('Ignore 2 elements for screenshot visual diff', async ({ I }) => {
+     //I.amOnPage('https://the-internet.herokuapp.com/context_menu');
+     //I.saveScreenshot('image.png');
+     await I.seeVisualDiff('image.png', { ignoredElements: ['#hot-spot', '#page-footer'] });
+   },
+ );
+```
+After this, that specific mentioned parts will be ignored while comparison.
+This works for `seeVisualDiff`.
+
+__Note__: DON'T use combination of `ignored box/boxes/element/elements` together, ALWAYS use only one of them as options !!!
+
 ### resemble.js Output Settings
 You can set further output settings used by resemble.js. Declare an object specifying them and pass it in the options as `outputSettings`:
 

@@ -66,6 +66,7 @@ class ResembleHelper extends Helper {
       resemble.outputSettings({
         boundingBox: options.boundingBox,
         ignoredBox: options.ignoredBox,
+        ignoredBoxes: options.ignoredBoxes,
         ...options.outputSettings,
       });
 
@@ -316,6 +317,10 @@ class ResembleHelper extends Helper {
       options.ignoredBox = await this._getElementCoordinates(options.ignoredElement);
     }
 
+    if (options.ignoredElements !== undefined) {
+      options.ignoredBoxes = await this._getIgnoredBoxesFromElements(options.ignoredElements);
+    }
+
     const prepareBaseImage = options.prepareBaseImage !== undefined
       ? options.prepareBaseImage
       : (this.prepareBaseImage === true);
@@ -512,9 +517,19 @@ class ResembleHelper extends Helper {
       bottom: bottom,
     };
 
-    this.debug('Element coordinates: ', JSON.stringify(ignoredBox));
+    this.debug(`Element: "${selector}" has coordinates: ${JSON.stringify(ignoredBox)}`);
 
     return ignoredBox;
+  }
+
+  /**
+   * Function for translate elements coordinates to ignoredBoxes
+   *
+   * @param options Options ex {ignoredElements: ['#name', '#email']} along with Resemble JS Options, read more here: https://github.com/rsmbl/Resemble.js
+   * @returns {Promise<{ignoredBoxes: [{left: *, top: *, right: *, bottom: *},{...}]>}
+   */
+  async _getIgnoredBoxesFromElements(options) {
+    return await Promise.all(options.map(async (item) => await this._getElementCoordinates(item)));
   }
 
   _getHelper() {
