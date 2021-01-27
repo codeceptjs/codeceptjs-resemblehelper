@@ -201,6 +201,10 @@ Scenario('Ignore 2 elements for screenshot visual diff', async ({ I }) => {
    },
  );
 ```
+After this, that specific mentioned parts will be ignored while comparison.
+This works for `seeVisualDiff`.
+
+__Note__: DON'T use combination of `ignored box/boxes/element/elements` together, ALWAYS use only one of them as options !!!
 
 ### resemble.js Output Settings
 You can set further output settings used by resemble.js. Declare an object specifying them and pass it in the options as `outputSettings`:
