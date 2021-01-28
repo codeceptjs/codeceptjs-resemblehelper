@@ -97,13 +97,22 @@ class ResembleHelper extends Helper {
   }
 
   /**
+   * Get actual date and time in format MMMM-MM-MMTHH:MM:SS
+   * @returns <void>
+   */
+  _getTimestamp() {
+    let now = new Date();
+    return now.toISOString().slice(0,19);
+  }
+
+  /**
    *
    * @param image
    * @param options
    * @returns {Promise<*>}
    */
   async _fetchMisMatchPercentage(image, options) {
-    const diffImage = `Diff_${image.split('.')[0]}`;
+    const diffImage = `Diff_${image.split('.')[0]}_${this._getTimestamp()}`;
     const result = this._compareImages(image, diffImage, options);
     const data = await Promise.resolve(result);
     return data.misMatchPercentage;
