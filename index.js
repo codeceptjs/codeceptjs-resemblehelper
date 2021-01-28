@@ -97,24 +97,12 @@ class ResembleHelper extends Helper {
   }
 
   /**
-   * Help function for date and time format
-   * @param number
-   * @returns number
-   */
-  _pad(number) {
-    if (number < 10) {
-      return `0${number}`;
-    }
-    return number;
-  }
-
-  /**
-   * Get actual date and time in format MMMM-MM-MMTHH-MM-SS
+   * Get actual date and time in format MMMM-MM-MMTHH:MM:SS
    * @returns <void>
    */
   _getTimestamp() {
     let now = new Date();
-    return `${now.getFullYear()}-${this._pad(now.getMonth() + 1)}-${this._pad(now.getDate())}T${this._pad(now.getHours())}:${this._pad(now.getMinutes())}:${this._pad(now.getSeconds())}`;
+    return now.toISOString().slice(0,19);
   }
 
   /**
