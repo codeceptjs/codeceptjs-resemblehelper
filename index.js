@@ -19,6 +19,7 @@ class ResembleHelper extends Helper {
     this.diffFolder = this.resolvePath(config.diffFolder);
     this.screenshotFolder = `${global.output_dir}/`;
     this.prepareBaseImage = config.prepareBaseImage;
+    this.tolerance = config.tolerance;
   }
 
   resolvePath(folderPath) {
@@ -102,7 +103,7 @@ class ResembleHelper extends Helper {
    */
   _getTimestamp() {
     let now = new Date();
-    return now.toISOString().slice(0,19);
+    return now.toISOString().slice(0, 19);
   }
 
   /**
@@ -318,7 +319,13 @@ class ResembleHelper extends Helper {
       options.tolerance = 0;
     }
 
-    if (!options.tolerance) {
+    if (this.tolerance !== undefined) {
+      if (options.tolerance === undefined) {
+        options.tolerance = this.tolerance;
+      }
+    }
+
+    if (options.tolerance === undefined) {
       options.tolerance = 0;
     }
 
