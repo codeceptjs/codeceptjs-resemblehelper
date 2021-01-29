@@ -22,7 +22,8 @@ Example:
        "require": "codeceptjs-resemblehelper",
        "baseFolder": "./tests/screenshots/base/",
        "diffFolder": "./tests/screenshots/diff/",
-       "prepareBaseImage": true
+       "prepareBaseImage": true,
+       "tolerance": 10
      }
    }
 }
@@ -36,6 +37,8 @@ To use the Helper, users may provide the parameters:
 
 `prepareBaseImage`: Optional. When `true` then the system replaces all of the baselines related to the test case(s) you ran. This is equivalent of setting the option `prepareBaseImage: true` in all verifications of the test file.
  If this parameter is missing in `.conf` file, value is `undefined`.
+
+ `tolerance`: Optional. When value is present, system sets tolerance for all tests, which does not have it set. Set tolerance in tests has always higher priority, than global tolerance in config.
 
 
 ### Usage
