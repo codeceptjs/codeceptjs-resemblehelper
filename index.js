@@ -325,7 +325,7 @@ class ResembleHelper extends Helper {
       }
     }
 
-    if (options.tolerance === undefined) {
+    if (!options.tolerance && options.tolerance !== 0) {
       options.tolerance = 0;
     }
 
