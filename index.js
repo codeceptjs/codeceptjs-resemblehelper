@@ -103,7 +103,7 @@ class ResembleHelper extends Helper {
    */
   _getTimestamp() {
     let now = new Date();
-    return now.toISOString().slice(0, 19);
+    return now.toISOString().slice(0, 19).replaceAll(':', '_');
   }
 
   /**
