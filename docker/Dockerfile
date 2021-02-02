@@ -10,6 +10,6 @@ COPY . /home/node/app/
 WORKDIR /home/node/app/
 
 # Download the dependecies
-RUN npm install
+RUN npm ci
 
 CMD /bin/bash -c "npm run conf:prepareBaseImage_undefined; npm run conf:prepareBaseImage_true; npm run conf:prepareBaseImage_false"

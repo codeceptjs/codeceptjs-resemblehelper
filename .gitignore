@@ -63,7 +63,7 @@ typings/
 #webstorm
 .idea
 
-package-lock.json
+.git
 
 .DS_Store
 
