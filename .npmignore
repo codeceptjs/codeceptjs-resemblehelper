@@ -10,3 +10,4 @@ tools/
 browsers.json
 package-lock.json
 steps_file.js
+.git
