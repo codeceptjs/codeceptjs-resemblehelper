@@ -60,11 +60,15 @@ typings/
 # next.js build output
 .next
 
-#webstorm
+# WebStorm | PHPStorm | InteliJ settings
 .idea
 
+# MacOS special caching files
 .DS_Store
 
+# Output folders for the test results
 /output
-
 /tests/screenshots
+
+# Ignore auto-generated types
+index.d.ts
