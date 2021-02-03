@@ -1,8 +1,14 @@
 {
-  "name": "codeceptjs-resemblehelper",
-  "version": "1.9.3",
-  "description": "Resemble Js helper for CodeceptJS, with Support for Playwright, Webdriver, TestCafe, Puppeteer & Appium",
+  "name": "@dixons/codeceptjs-resemblehelper",
+  "version": "0.0.0-development",
+  "publishConfig": {
+    "access": "public"
+  },
+  "description": "Forked Resemble Js helper for CodeceptJS, with Support for Playwright, Webdriver, TestCafe, Puppeteer & Appium",
+  "main": "index.js",
+  "homepage": "https://github.com/dixons/codeceptjs-resemblehelper#readme",
   "scripts": {
+    "test": "echo \"test OK\"",
     "lint": "eslint index.js tools configs tests",
     "lint-fix": "eslint index.js tools configs tests --fix",
     "conf:prepareBaseImage_undefined": "codeceptjs run --config=./configs/prepareBaseImage-undefined.conf.js  --debug",
@@ -11,7 +17,7 @@
   },
   "repository": {
     "type": "git",
-    "url": "git@github.com:Percona-Lab/codeceptjs-resemblehelper.git"
+    "url": "git@github.com:dixons/codeceptjs-resemblehelper.git"
   },
   "dependencies": {
     "assert": "^1.5.0",
@@ -24,6 +30,7 @@
     "image-size": "^0.8.3"
   },
   "devDependencies": {
+    "@semantic-release/changelog": "^5.0.1",
     "@wdio/cli": "^6.12.0",
     "allure-commandline": "^2.13.0",
     "codeceptjs": "^3.0.4",
@@ -33,6 +40,7 @@
     "eslint-plugin-import": "^2.22.1",
     "mocha": "^6.2.2",
     "mochawesome": "^4.1.0",
+    "semantic-release": "^17.3.7",
     "webdriverio": "^6.12.0"
   },
   "keywords": [
