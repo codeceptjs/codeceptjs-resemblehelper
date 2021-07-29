@@ -311,11 +311,12 @@ class ResembleHelper extends Helper {
     const prepareBaseImage = options.prepareBaseImage !== undefined
       ? options.prepareBaseImage
       : (this.prepareBaseImage === true)
+
     const awsC = this.config.aws;
     if (awsC !== undefined && prepareBaseImage === false) {
       await this._download(awsC.accessKeyId, awsC.secretAccessKey, awsC.region, awsC.bucketName, baseImage);
     }
-    if (options.prepareBaseImage !== undefined && options.prepareBaseImage) {
+    if (prepareBaseImage) {
       await this._prepareBaseImage(baseImage);
     }
     if (selector) {
