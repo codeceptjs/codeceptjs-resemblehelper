@@ -36,6 +36,7 @@ To use the Helper, users may provide the parameters:
 
 `prepareBaseImage`: Optional. When `true` then the system replaces all of the baselines related to the test case(s) you ran. This is equivalent of setting the option `prepareBaseImage: true` in all verifications of the test file.
 
+`compareWithImage`: Optional. A custom filename to compare the screenshot with. The `compareWithImage` file must be located inside the `baseFolder`.
 
 ### Usage
 
@@ -182,6 +183,21 @@ This base image has to be located inside a folder named "*base*".
 The resultant output image will be uploaded in a folder named "*output*" and diff image will be uploaded to a folder named "*diff*" in the S3 bucket.
 If the `prepareBaseImage` option is marked `true`, then the generated base image will be uploaded to a folder named "*base*" in the S3 bucket.
 > Note: The tests may take a bit longer to run when the AWS configuration is provided as determined by the internet speed to upload/download images.
+
+### Compare with custom image
+Usually, every screenshot needs to have the same filename as an existing image inside the `baseFolder` directory. To change this behavior, you can use the `compareWithImage` option and specify a different image inside the `baseFolder` directory:
+```js
+I.seeVisualDiffForElement("#element", "image.png", {compareWithImage: "login-screen.png"});
+```
+This is useful, if you want to compare a single screenshot against multiple base images - for example, when you want to validate that the main menu element is identical on all app pages.
+
+Or, in some cases there are intended visual differences for different browsers or operating systems:
+```js
+const os = "win32" === process.platform ? "win" : "mac";
+
+// Compare "image.png" either with "image-win.png" or "image-mac.png":
+I.seeVisualDiff("image.png", {compareWithImage: `image-${os}.png`});
+```
 
 ### Known Issues:
 
