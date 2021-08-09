@@ -227,8 +227,8 @@ class ResembleHelper extends Helper {
     });
 
     // If prepareBaseImage is false, then it won't upload the baseImage. However, this parameter is not considered if the config file has a prepareBaseImage set to true.
-    if (options.prepareBaseImage) {
-      const baseImageName = this._getbaseImageName(baseImage, options);
+    if (this._getPrepareBaseImage(options)) {
+      const baseImageName = this._getBaseImageName(baseImage, options);
 
       fs.readFile(this._getBaseImagePath(baseImage, options), (err, data) => {
         if (err) throw err;
@@ -263,7 +263,7 @@ class ResembleHelper extends Helper {
 
   _download(accessKeyId, secretAccessKey, region, bucketName, baseImage, options) {
     console.log("Starting Download...");
-    const baseImageName = this._getbaseImageName(baseImage, options);
+    const baseImageName = this._getBaseImageName(baseImage, options);
     const s3 = new AWS.S3({
       accessKeyId: accessKeyId,
       secretAccessKey: secretAccessKey,
@@ -311,16 +311,14 @@ class ResembleHelper extends Helper {
       options.tolerance = 0;
     }
 
-    const prepareBaseImage = options.prepareBaseImage !== undefined
-      ? options.prepareBaseImage
-      : (this.prepareBaseImage === true)
     const awsC = this.config.aws;
-    if (awsC !== undefined && prepareBaseImage === false) {
+
+    if (this._getPrepareBaseImage(options)) {
+      await this._prepareBaseImage(baseImage, options);
+    } else if (awsC !== undefined) {
       await this._download(awsC.accessKeyId, awsC.secretAccessKey, awsC.region, awsC.bucketName, baseImage, options);
     }
-    if (options.prepareBaseImage !== undefined && options.prepareBaseImage) {
-      await this._prepareBaseImage(baseImage, options);
-    }
+
     if (selector) {
       options.boundingBox = await this._getBoundingBox(selector);
     }
@@ -497,6 +495,21 @@ class ResembleHelper extends Helper {
   _getDiffImagePath(image) {
   	const diffImage = "Diff_" + image.split(".")[0] + ".png";
   	return this.diffFolder + diffImage;
+  }
+
+  /**
+   * Returns the final `prepareBaseImage` flag after evaluating options and config values
+   * @param options Helper options
+   * @returns {boolean}
+   */
+  _getPrepareBaseImage(options) {
+    if ('undefined' !== typeof options.prepareBaseImage) {
+      // Cast to bool with `!!` for backwards compatibility
+      return !! options.prepareBaseImage;
+    } else {
+      // Compare with `true` for backwards compatibility
+      return true === this.prepareBaseImage;
+    }
   }
 }
 
