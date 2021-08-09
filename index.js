@@ -33,13 +33,13 @@ class ResembleHelper extends Helper {
    * Compare Images
    *
    * @param image
-   * @param diffImage
    * @param options
    * @returns {Promise<resolve | reject>}
    */
-  async _compareImages(image, diffImage, options) {
-    const baseImage = this.baseFolder + image;
-    const actualImage = this.screenshotFolder + image;
+  async _compareImages(image, options) {
+    const baseImage = this._getBaseImagePath(image, options);
+    const actualImage = this._getActualImagePath(image, options);
+    const diffImage = this._getDiffImagePath(image, options);
 
     // check whether the base and the screenshot images are present.
     fs.access(baseImage, fs.constants.F_OK | fs.constants.R_OK, (err) => {
@@ -83,11 +83,11 @@ class ResembleHelper extends Helper {
           }
           resolve(data);
           if (data.misMatchPercentage >= tolerance) {
-            if (!fs.existsSync(getDirName(this.diffFolder + diffImage))) {
-              fs.mkdirSync(getDirName(this.diffFolder + diffImage));
+            if (!fs.existsSync(getDirName(diffImage))) {
+              fs.mkdirSync(getDirName(diffImage));
             }
-            fs.writeFileSync(this.diffFolder + diffImage + '.png', data.getBuffer());
-            const diffImagePath = path.join(process.cwd(), this.diffFolder + diffImage + '.png');
+            fs.writeFileSync(diffImage, data.getBuffer());
+            const diffImagePath = path.join(process.cwd(), diffImage);
             this.debug(`Diff Image File Saved to: ${diffImagePath}`);
           }
         }
@@ -102,8 +102,7 @@ class ResembleHelper extends Helper {
    * @returns {Promise<*>}
    */
   async _fetchMisMatchPercentage(image, options) {
-    const diffImage = "Diff_" + image.split(".")[0];
-    const result = this._compareImages(image, diffImage, options);
+    const result = this._compareImages(image, options);
     const data = await Promise.resolve(result);
     return data.misMatchPercentage;
   }
@@ -144,18 +143,17 @@ class ResembleHelper extends Helper {
    * This method attaches image attachments of the base, screenshot and diff to the allure reporter when the mismatch exceeds tolerance.
    * @param baseImage
    * @param misMatch
-   * @param tolerance
+   * @param options
    * @returns {Promise<void>}
    */
 
-  async _addAttachment(baseImage, misMatch, tolerance) {
+  async _addAttachment(baseImage, misMatch, options) {
     const allure = codeceptjs.container.plugins('allure');
-    const diffImage = "Diff_" + baseImage.split(".")[0] + ".png";
 
-    if (allure !== undefined && misMatch >= tolerance) {
-      allure.addAttachment('Base Image', fs.readFileSync(this.baseFolder + baseImage), 'image/png');
-      allure.addAttachment('Screenshot Image', fs.readFileSync(this.screenshotFolder + baseImage), 'image/png');
-      allure.addAttachment('Diff Image', fs.readFileSync(this.diffFolder + diffImage), 'image/png');
+    if (allure !== undefined && misMatch >= options.tolerance) {
+      allure.addAttachment('Base Image', fs.readFileSync(this._getBaseImagePath(baseImage, options)), 'image/png');
+      allure.addAttachment('Screenshot Image', fs.readFileSync(this._getActualImagePath(baseImage, options)), 'image/png');
+      allure.addAttachment('Diff Image', fs.readFileSync(this._getDiffImagePath(baseImage, options)), 'image/png');
     }
   }
 
@@ -163,21 +161,20 @@ class ResembleHelper extends Helper {
    * This method attaches context, and images to Mochawesome reporter when the mismatch exceeds tolerance.
    * @param baseImage
    * @param misMatch
-   * @param tolerance
+   * @param options
    * @returns {Promise<void>}
    */
 
-  async _addMochaContext(baseImage, misMatch, tolerance) {
+  async _addMochaContext(baseImage, misMatch, options) {
     const mocha = this.helpers['Mochawesome'];
-    const diffImage = "Diff_" + baseImage.split(".")[0] + ".png";
 
-    if (mocha !== undefined && misMatch >= tolerance) {
+    if (mocha !== undefined && misMatch >= options.tolerance) {
       await mocha.addMochawesomeContext("Base Image");
-      await mocha.addMochawesomeContext(this.baseFolder + baseImage);
+      await mocha.addMochawesomeContext(this._getBaseImagePath(baseImage, options));
       await mocha.addMochawesomeContext("ScreenShot Image");
-      await mocha.addMochawesomeContext(this.screenshotFolder + baseImage);
+      await mocha.addMochawesomeContext(this._getActualImagePath(baseImage, options));
       await mocha.addMochawesomeContext("Diff Image");
-      await mocha.addMochawesomeContext(this.diffFolder + diffImage);
+      await mocha.addMochawesomeContext(this._getDiffImagePath(baseImage, options));
     }
   }
 
@@ -189,18 +186,18 @@ class ResembleHelper extends Helper {
    * @param region
    * @param bucketName
    * @param baseImage
-   * @param ifBaseImage - tells if the prepareBaseImage is true or false. If false, then it won't upload the baseImage. However, this parameter is not considered if the config file has a prepareBaseImage set to true.
+   * @param options
    * @returns {Promise<void>}
    */
 
-  async _upload(accessKeyId, secretAccessKey, region, bucketName, baseImage, ifBaseImage) {
+  async _upload(accessKeyId, secretAccessKey, region, bucketName, baseImage, options) {
     console.log("Starting Upload... ");
     const s3 = new AWS.S3({
       accessKeyId: accessKeyId,
       secretAccessKey: secretAccessKey,
       region: region
     });
-    fs.readFile(this.screenshotFolder + baseImage, (err, data) => {
+    fs.readFile(this._getActualImagePath(baseImage, options), (err, data) => {
       if (err) throw err;
       let base64data = new Buffer(data, 'binary');
       const params = {
@@ -213,7 +210,7 @@ class ResembleHelper extends Helper {
         console.log(`Screenshot Image uploaded successfully at ${uData.Location}`);
       });
     });
-    fs.readFile(this.diffFolder + "Diff_" + baseImage, (err, data) => {
+    fs.readFile(this._getDiffImagePath(baseImage, options), (err, data) => {
       if (err) console.log("Diff image not generated");
       else {
         let base64data = new Buffer(data, 'binary');
@@ -228,14 +225,18 @@ class ResembleHelper extends Helper {
         });
       }
     });
-    if (ifBaseImage) {
-      fs.readFile(this.baseFolder + baseImage, (err, data) => {
+
+	// If prepareBaseImage is false, then it won't upload the baseImage. However, this parameter is not considered if the config file has a prepareBaseImage set to true.
+	if (options.prepareBaseImage) {
+      const baseImageName = this._getbaseImageName(baseImage, options);
+
+      fs.readFile(this._getBaseImagePath(baseImage, options), (err, data) => {
         if (err) throw err;
         else {
           let base64data = new Buffer(data, 'binary');
           const params = {
             Bucket: bucketName,
-            Key: `base/${baseImage}`,
+            Key: `base/${baseImageName}`,
             Body: base64data
           };
           s3.upload(params, (uErr, uData) => {
@@ -256,11 +257,13 @@ class ResembleHelper extends Helper {
    * @param region
    * @param bucketName
    * @param baseImage
+   * @param options
    * @returns {Promise<void>}
    */
 
-  _download(accessKeyId, secretAccessKey, region, bucketName, baseImage) {
+  _download(accessKeyId, secretAccessKey, region, bucketName, baseImage, options) {
     console.log("Starting Download...");
+    const baseImageName = this._getbaseImageName(baseImage, options);
     const s3 = new AWS.S3({
       accessKeyId: accessKeyId,
       secretAccessKey: secretAccessKey,
@@ -268,13 +271,13 @@ class ResembleHelper extends Helper {
     });
     const params = {
       Bucket: bucketName,
-      Key: `base/${baseImage}`
+      Key: `base/${baseImageName}`
     };
     return new Promise((resolve) => {
       s3.getObject(params, (err, data) => {
         if (err) console.error(err);
-        console.log(this.baseFolder + baseImage);
-        fs.writeFileSync(this.baseFolder + baseImage, data.Body);
+        console.log(this._getBaseImagePath(baseImage, options));
+        fs.writeFileSync(this._getBaseImagePath(baseImage, options), data.Body);
         resolve("File Downloaded Successfully");
       });
     });
@@ -313,19 +316,19 @@ class ResembleHelper extends Helper {
       : (this.prepareBaseImage === true)
     const awsC = this.config.aws;
     if (awsC !== undefined && prepareBaseImage === false) {
-      await this._download(awsC.accessKeyId, awsC.secretAccessKey, awsC.region, awsC.bucketName, baseImage);
+      await this._download(awsC.accessKeyId, awsC.secretAccessKey, awsC.region, awsC.bucketName, baseImage, options);
     }
     if (options.prepareBaseImage !== undefined && options.prepareBaseImage) {
-      await this._prepareBaseImage(baseImage);
+      await this._prepareBaseImage(baseImage, options);
     }
     if (selector) {
       options.boundingBox = await this._getBoundingBox(selector);
     }
     const misMatch = await this._fetchMisMatchPercentage(baseImage, options);
-    this._addAttachment(baseImage, misMatch, options.tolerance);
-    this._addMochaContext(baseImage, misMatch, options.tolerance);
+    this._addAttachment(baseImage, misMatch, options);
+    this._addMochaContext(baseImage, misMatch, options);
     if (awsC !== undefined) {
-      await this._upload(awsC.accessKeyId, awsC.secretAccessKey, awsC.region, awsC.bucketName, baseImage, options.prepareBaseImage)
+      await this._upload(awsC.accessKeyId, awsC.secretAccessKey, awsC.region, awsC.bucketName, baseImage, options)
     }
 
     this.debug("MisMatch Percentage Calculated is " + misMatch + " for baseline " + baseImage);
@@ -339,14 +342,18 @@ class ResembleHelper extends Helper {
    * Function to prepare Base Images from Screenshots
    *
    * @param screenShotImage  Name of the screenshot Image (Screenshot Image Path is taken from Configuration)
+   * @param options
    */
-  async _prepareBaseImage(screenShotImage) {
-    await this._createDir(this.baseFolder + screenShotImage);
+  async _prepareBaseImage(screenShotImage, options) {
+  	const baseImage = this._getBaseImagePath(screenShotImage, options);
+  	const actualImage = this._getActualImagePath(screenShotImage, options);
 
-    fs.access(this.screenshotFolder + screenShotImage, fs.constants.F_OK | fs.constants.W_OK, (err) => {
+    await this._createDir(baseImage);
+
+    fs.access(actualImage, fs.constants.F_OK | fs.constants.W_OK, (err) => {
       if (err) {
         throw new Error(
-          `${this.screenshotFolder + screenShotImage} ${err.code === 'ENOENT' ? 'does not exist' : 'is read-only'}`);
+          `${actualImage} ${err.code === 'ENOENT' ? 'does not exist' : 'is read-only'}`);
       }
     });
 
@@ -357,7 +364,7 @@ class ResembleHelper extends Helper {
       }
     });
 
-    fs.copyFileSync(this.screenshotFolder + screenShotImage, this.baseFolder + screenShotImage);
+    fs.copyFileSync(actualImage, baseImage);
   }
 
   /**
@@ -452,6 +459,46 @@ class ResembleHelper extends Helper {
 
     throw new Error('No matching helper found. Supported helpers: Playwright/WebDriver/Appium/Puppeteer/TestCafe');
   }
+
+  /**
+   * Returns the final name of the expected base image, without a path
+   * @param image Name of the base-image, without path
+   * @param options Helper options
+   * @returns {string}
+   */
+  _getBaseImageName(image, options) {
+  	return (options.compareWithImage ? options.compareWithImage : image);
+  }
+
+  /**
+   * Returns the path to the expected base image
+   * @param image Name of the base-image, without path
+   * @param options Helper options
+   * @returns {string}
+   */
+  _getBaseImagePath(image, options) {
+    return this.baseFolder + this._getBaseImageName(image, options);
+  }
+
+  /**
+   * Returns the path to the actual screenshot image
+   * @param image Name of the image, without path
+   * @returns {string}
+   */
+  _getActualImagePath(image) {
+  	return this.screenshotFolder + image;
+  }
+
+  /**
+   * Returns the path to the image that displays differences between base and actual image.
+   * @param image Name of the image, without path
+   * @returns {string}
+   */
+  _getDiffImagePath(image) {
+  	const diffImage = "Diff_" + image.split(".")[0] + ".png";
+  	return this.diffFolder + diffImage;
+  }
 }
+
 
 module.exports = ResembleHelper;
