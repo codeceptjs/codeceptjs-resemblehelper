@@ -38,8 +38,8 @@ class ResembleHelper extends Helper {
    */
   async _compareImages(image, options) {
     const baseImage = this._getBaseImagePath(image, options);
-    const actualImage = this._getActualImagePath(image, options);
-    const diffImage = this._getDiffImagePath(image, options);
+    const actualImage = this._getActualImagePath(image);
+    const diffImage = this._getDiffImagePath(image);
 
     // check whether the base and the screenshot images are present.
     fs.access(baseImage, fs.constants.F_OK | fs.constants.R_OK, (err) => {
@@ -152,8 +152,8 @@ class ResembleHelper extends Helper {
 
     if (allure !== undefined && misMatch >= options.tolerance) {
       allure.addAttachment('Base Image', fs.readFileSync(this._getBaseImagePath(baseImage, options)), 'image/png');
-      allure.addAttachment('Screenshot Image', fs.readFileSync(this._getActualImagePath(baseImage, options)), 'image/png');
-      allure.addAttachment('Diff Image', fs.readFileSync(this._getDiffImagePath(baseImage, options)), 'image/png');
+      allure.addAttachment('Screenshot Image', fs.readFileSync(this._getActualImagePath(baseImage)), 'image/png');
+      allure.addAttachment('Diff Image', fs.readFileSync(this._getDiffImagePath(baseImage)), 'image/png');
     }
   }
 
@@ -172,9 +172,9 @@ class ResembleHelper extends Helper {
       await mocha.addMochawesomeContext("Base Image");
       await mocha.addMochawesomeContext(this._getBaseImagePath(baseImage, options));
       await mocha.addMochawesomeContext("ScreenShot Image");
-      await mocha.addMochawesomeContext(this._getActualImagePath(baseImage, options));
+      await mocha.addMochawesomeContext(this._getActualImagePath(baseImage));
       await mocha.addMochawesomeContext("Diff Image");
-      await mocha.addMochawesomeContext(this._getDiffImagePath(baseImage, options));
+      await mocha.addMochawesomeContext(this._getDiffImagePath(baseImage));
     }
   }
 
@@ -197,7 +197,7 @@ class ResembleHelper extends Helper {
       secretAccessKey: secretAccessKey,
       region: region
     });
-    fs.readFile(this._getActualImagePath(baseImage, options), (err, data) => {
+    fs.readFile(this._getActualImagePath(baseImage), (err, data) => {
       if (err) throw err;
       let base64data = new Buffer(data, 'binary');
       const params = {
@@ -210,7 +210,7 @@ class ResembleHelper extends Helper {
         console.log(`Screenshot Image uploaded successfully at ${uData.Location}`);
       });
     });
-    fs.readFile(this._getDiffImagePath(baseImage, options), (err, data) => {
+    fs.readFile(this._getDiffImagePath(baseImage), (err, data) => {
       if (err) console.log("Diff image not generated");
       else {
         let base64data = new Buffer(data, 'binary');
@@ -226,8 +226,8 @@ class ResembleHelper extends Helper {
       }
     });
 
-	// If prepareBaseImage is false, then it won't upload the baseImage. However, this parameter is not considered if the config file has a prepareBaseImage set to true.
-	if (options.prepareBaseImage) {
+    // If prepareBaseImage is false, then it won't upload the baseImage. However, this parameter is not considered if the config file has a prepareBaseImage set to true.
+    if (options.prepareBaseImage) {
       const baseImageName = this._getbaseImageName(baseImage, options);
 
       fs.readFile(this._getBaseImagePath(baseImage, options), (err, data) => {
@@ -346,7 +346,7 @@ class ResembleHelper extends Helper {
    */
   async _prepareBaseImage(screenShotImage, options) {
   	const baseImage = this._getBaseImagePath(screenShotImage, options);
-  	const actualImage = this._getActualImagePath(screenShotImage, options);
+  	const actualImage = this._getActualImagePath(screenShotImage);
 
     await this._createDir(baseImage);
 
@@ -499,6 +499,5 @@ class ResembleHelper extends Helper {
   	return this.diffFolder + diffImage;
   }
 }
-
 
 module.exports = ResembleHelper;
