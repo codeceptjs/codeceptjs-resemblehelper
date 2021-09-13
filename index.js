@@ -63,6 +63,9 @@ class ResembleHelper extends Helper {
       if (!options.outputSettings) {
         options.outputSettings = {};
       }
+      if (!options.needsSameDimension) {
+        options.needsSameDimension = true;
+      }
       resemble.outputSettings({
         boundingBox: options.boundingBox,
         ignoredBox: options.ignoredBox,
@@ -76,7 +79,7 @@ class ResembleHelper extends Helper {
         if (err) {
           reject(err);
         } else {
-          if (!data.isSameDimensions) {
+          if (options.needsSameDimension && !data.isSameDimensions) {
             let dimensions1 = sizeOf(baseImage);
             let dimensions2 = sizeOf(actualImage);
             reject(new Error(`The base image is of ${dimensions1.height} X ${dimensions1.width} and actual image is of ${dimensions2.height} X ${dimensions2.width}. Please use images of same dimensions so as to avoid any unexpected results.`));
