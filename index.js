@@ -29,6 +29,15 @@ class ResembleHelper extends Helper {
     return folderPath;
   }
 
+  resolveRelativePath(folderPath) {
+    let absolutePath = folderPath;
+    if (!path.isAbsolute(folderPath)) {
+      absolutePath = path.resolve(global.codecept_dir, folderPath) + "/";
+    }
+    let relativePath = absolutePath.replace(global.output_dir+'/','./');
+    return relativePath;
+  }
+
   /**
    * Compare Images
    *
@@ -170,11 +179,11 @@ class ResembleHelper extends Helper {
 
     if (mocha !== undefined && misMatch >= options.tolerance) {
       await mocha.addMochawesomeContext("Base Image");
-      await mocha.addMochawesomeContext(this._getBaseImagePath(baseImage, options));
+      await mocha.addMochawesomeContext(this.resolveRelativePath(this._getBaseImagePath(baseImage, options)));
       await mocha.addMochawesomeContext("ScreenShot Image");
-      await mocha.addMochawesomeContext(this._getActualImagePath(baseImage));
+      await mocha.addMochawesomeContext(this.resolveRelativePath(this._getActualImagePath(baseImage)));
       await mocha.addMochawesomeContext("Diff Image");
-      await mocha.addMochawesomeContext(this._getDiffImagePath(baseImage));
+      await mocha.addMochawesomeContext(this.resolveRelativePath(this._getDiffImagePath(baseImage)));
     }
   }
 
