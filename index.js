@@ -30,16 +30,21 @@ class ResembleHelper extends Helper {
     return folderPath;
   }
 
-  resolveRelativePath(folderPath) {
+  resolveImagePathRelativeFromReport(folderPath) {
     let absolutePathOfImage = folderPath;
     if (!path.isAbsolute(absolutePathOfImage)) {
       absolutePathOfImage = path.resolve(global.codecept_dir, absolutePathOfImage) + "/";
     }
-    let absolutePathOfReportFolder = this.resolvePath(Container.mocha().options.reporterOptions.mochawesomeReporterOptions.reportDir  ? Container.mocha().options.reporterOptions.mochawesomeReporterOptions.reportDir : global.output_dir);
-    if (absolutePathOfReportFolder.substr(-1) != '/') {
-      absolutePathOfReportFolder = absolutePathOfReportFolder + '/';
+    let absolutePathOfReportFolder = global.output_dir;
+    // support mocha
+    if (Container.mocha() && Container.mocha().options.reporterOptions.reportDir) {
+      absolutePathOfReportFolder = Container.mocha().options.reporterOptions.reportDir;
     }
-    return absolutePathOfImage.replace(absolutePathOfReportFolder,'');
+    // support mocha-multi-reporters
+    if (Container.mocha() && Container.mocha().options.reporterOptions.mochawesomeReporterOptions.reportDir) {
+      absolutePathOfReportFolder = Container.mocha().options.reporterOptions.mochawesomeReporterOptions.reportDir;
+    }
+    return path.relative(absolutePathOfReportFolder,absolutePathOfImage);
   }
 
   /**
@@ -183,11 +188,11 @@ class ResembleHelper extends Helper {
 
     if (mocha !== undefined && misMatch >= options.tolerance) {
       await mocha.addMochawesomeContext("Base Image");
-      await mocha.addMochawesomeContext(this.resolveRelativePath(this._getBaseImagePath(baseImage, options)));
+      await mocha.addMochawesomeContext(this.resolveImagePathRelativeFromReport(this._getBaseImagePath(baseImage, options)));
       await mocha.addMochawesomeContext("ScreenShot Image");
-      await mocha.addMochawesomeContext(this.resolveRelativePath(this._getActualImagePath(baseImage)));
+      await mocha.addMochawesomeContext(this.resolveImagePathRelativeFromReport(this._getActualImagePath(baseImage)));
       await mocha.addMochawesomeContext("Diff Image");
-      await mocha.addMochawesomeContext(this.resolveRelativePath(this._getDiffImagePath(baseImage)));
+      await mocha.addMochawesomeContext(this.resolveImagePathRelativeFromReport(this._getDiffImagePath(baseImage)));
     }
   }
 
