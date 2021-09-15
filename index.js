@@ -6,6 +6,7 @@ const getDirName = require('path').dirname;
 const AWS = require('aws-sdk');
 const path = require('path');
 const sizeOf = require('image-size');
+const Container = require('codeceptjs/lib/container');
 
 /**
  * Resemble.js helper class for CodeceptJS, this allows screen comparison
@@ -30,12 +31,15 @@ class ResembleHelper extends Helper {
   }
 
   resolveRelativePath(folderPath) {
-    let absolutePath = folderPath;
-    if (!path.isAbsolute(folderPath)) {
-      absolutePath = path.resolve(global.codecept_dir, folderPath) + "/";
+    let absolutePathOfImage = folderPath;
+    if (!path.isAbsolute(absolutePathOfImage)) {
+      absolutePathOfImage = path.resolve(global.codecept_dir, absolutePathOfImage) + "/";
     }
-    let relativePath = absolutePath.replace(global.output_dir+'/','./');
-    return relativePath;
+    let absolutePathOfReportFolder = this.resolvePath(Container.mocha().options.reporterOptions.mochawesomeReporterOptions.reportDir  ? Container.mocha().options.reporterOptions.mochawesomeReporterOptions.reportDir : global.output_dir);
+    if (absolutePathOfReportFolder.substr(-1) != '/') {
+      absolutePathOfReportFolder = absolutePathOfReportFolder + '/';
+    }
+    return absolutePathOfImage.replace(absolutePathOfReportFolder,'');
   }
 
   /**
