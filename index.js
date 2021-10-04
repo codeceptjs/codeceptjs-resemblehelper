@@ -30,23 +30,23 @@ class ResembleHelper extends Helper {
     return folderPath;
   }
 
-  resolveImagePathRelativeFromReport(folderPath) {
+  resolveRelativePath(folderPath) {
     let absolutePathOfImage = folderPath;
     if (!path.isAbsolute(absolutePathOfImage)) {
       absolutePathOfImage = path.resolve(global.codecept_dir, absolutePathOfImage) + "/";
     }
     let absolutePathOfReportFolder = global.output_dir;
     // support mocha
-    if (Container.mocha() && Container.mocha().options.reporterOptions.reportDir) {
+    if (Container.mocha() && typeof Container.mocha().options.reporterOptions.reportDir !== 'undefined') {
       absolutePathOfReportFolder = Container.mocha().options.reporterOptions.reportDir;
     }
     // support mocha-multi-reporters
-    if (Container.mocha() && Container.mocha().options.reporterOptions.mochawesomeReporterOptions.reportDir) {
+    if (Container.mocha() && typeof Container.mocha().options.reporterOptions.mochawesomeReporterOptions.reportDir !== 'undefined') {
       absolutePathOfReportFolder = Container.mocha().options.reporterOptions.mochawesomeReporterOptions.reportDir;
     }
-    return path.relative(absolutePathOfReportFolder,absolutePathOfImage);
+    return path.relative(absolutePathOfReportFolder, absolutePathOfImage);
   }
-
+  
   /**
    * Compare Images
    *
