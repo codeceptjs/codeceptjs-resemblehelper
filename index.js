@@ -30,7 +30,7 @@ class ResembleHelper extends Helper {
     return folderPath;
   }
 
-  resolveRelativePath(folderPath) {
+  _resolveRelativePath(folderPath) {
     let absolutePathOfImage = folderPath;
     if (!path.isAbsolute(absolutePathOfImage)) {
       absolutePathOfImage = path.resolve(global.codecept_dir, absolutePathOfImage) + "/";
@@ -46,7 +46,7 @@ class ResembleHelper extends Helper {
     }
     return path.relative(absolutePathOfReportFolder, absolutePathOfImage);
   }
-  
+
   /**
    * Compare Images
    *
