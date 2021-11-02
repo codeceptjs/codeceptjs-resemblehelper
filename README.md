@@ -44,13 +44,13 @@ These are the major functions that help in visual testing:
 
 First one is the `seeVisualDiff` which basically takes two parameters
 1) `baseImage` Name of the base image, this will be the image used for comparison with the screenshot image. It is mandatory to have the same image file names for base and screenshot image.
-2) `options` options can be passed which include `prepaseBaseImage` and `tolerance`.
+2) `options` options can be passed which include `prepaseBaseImage`, `tolerance` and `needsSameDimension`.
 
 ```js
     /**
      * Check Visual Difference for Base and Screenshot Image
      * @param baseImage         Name of the Base Image (Base Image path is taken from Configuration)
-     * @param options           Options ex {prepareBaseImage: true, tolerance: 5} along with Resemble JS Options, read more here: https://github.com/rsmbl/Resemble.js
+     * @param options           Options ex {prepareBaseImage: true, tolerance: 5, needsSameDimension: false} along with Resemble JS Options, read more here: https://github.com/rsmbl/Resemble.js
      * @returns {Promise<void>}
      */
     async seeVisualDiff(baseImage, options) {}
