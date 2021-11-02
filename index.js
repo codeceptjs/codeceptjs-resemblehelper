@@ -6,6 +6,7 @@ const getDirName = require('path').dirname;
 const AWS = require('aws-sdk');
 const path = require('path');
 const sizeOf = require('image-size');
+const Container = require('codeceptjs/lib/container');
 
 /**
  * Resemble.js helper class for CodeceptJS, this allows screen comparison
@@ -27,6 +28,23 @@ class ResembleHelper extends Helper {
       return path.resolve(global.codecept_dir, folderPath) + "/";
     }
     return folderPath;
+  }
+
+  _resolveRelativePath(folderPath) {
+    let absolutePathOfImage = folderPath;
+    if (!path.isAbsolute(absolutePathOfImage)) {
+      absolutePathOfImage = path.resolve(global.codecept_dir, absolutePathOfImage) + "/";
+    }
+    let absolutePathOfReportFolder = global.output_dir;
+    // support mocha
+    if (Container.mocha() && typeof Container.mocha().options.reporterOptions.reportDir !== 'undefined') {
+      absolutePathOfReportFolder = Container.mocha().options.reporterOptions.reportDir;
+    }
+    // support mocha-multi-reporters
+    if (Container.mocha() && typeof Container.mocha().options.reporterOptions.mochawesomeReporterOptions.reportDir !== 'undefined') {
+      absolutePathOfReportFolder = Container.mocha().options.reporterOptions.mochawesomeReporterOptions.reportDir;
+    }
+    return path.relative(absolutePathOfReportFolder, absolutePathOfImage);
   }
 
   /**
@@ -170,11 +188,11 @@ class ResembleHelper extends Helper {
 
     if (mocha !== undefined && misMatch >= options.tolerance) {
       await mocha.addMochawesomeContext("Base Image");
-      await mocha.addMochawesomeContext(this._getBaseImagePath(baseImage, options));
+      await mocha.addMochawesomeContext(this.resolveImagePathRelativeFromReport(this._getBaseImagePath(baseImage, options)));
       await mocha.addMochawesomeContext("ScreenShot Image");
-      await mocha.addMochawesomeContext(this._getActualImagePath(baseImage));
+      await mocha.addMochawesomeContext(this.resolveImagePathRelativeFromReport(this._getActualImagePath(baseImage)));
       await mocha.addMochawesomeContext("Diff Image");
-      await mocha.addMochawesomeContext(this._getDiffImagePath(baseImage));
+      await mocha.addMochawesomeContext(this.resolveImagePathRelativeFromReport(this._getDiffImagePath(baseImage)));
     }
   }
 
