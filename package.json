@@ -8,9 +8,9 @@
   },
   "dependencies": {
     "assert": "^1.5.0",
-    "canvas": "^2.6.1",
+    "canvas": "2.6.1",
     "mz": "^2.7.0",
-    "resemblejs": "^3.2.4",
+    "resemblejs": "3.2.4",
     "mkdirp": "^1.0.4",
     "path": "^0.12.7",
     "aws-sdk": "^2.662.0",
