@@ -1,6 +1,6 @@
 {
   "name": "codeceptjs-resemblehelper",
-  "version": "1.9.4",
+  "version": "1.9.5",
   "description": "Resemble Js helper for CodeceptJS, with Support for Playwright, Webdriver, TestCafe, Puppeteer & Appium",
   "repository": {
     "type": "git",

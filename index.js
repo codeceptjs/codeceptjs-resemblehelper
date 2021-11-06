@@ -6,6 +6,7 @@ const getDirName = require('path').dirname;
 const AWS = require('aws-sdk');
 const path = require('path');
 const sizeOf = require('image-size');
+const Container = require('codeceptjs/lib/container');
 
 /**
  * Resemble.js helper class for CodeceptJS, this allows screen comparison
@@ -27,6 +28,23 @@ class ResembleHelper extends Helper {
       return path.resolve(global.codecept_dir, folderPath) + "/";
     }
     return folderPath;
+  }
+
+  _resolveRelativePath(folderPath) {
+    let absolutePathOfImage = folderPath;
+    if (!path.isAbsolute(absolutePathOfImage)) {
+      absolutePathOfImage = path.resolve(global.codecept_dir, absolutePathOfImage) + "/";
+    }
+    let absolutePathOfReportFolder = global.output_dir;
+    // support mocha
+    if (Container.mocha() && typeof Container.mocha().options.reporterOptions.reportDir !== 'undefined') {
+      absolutePathOfReportFolder = Container.mocha().options.reporterOptions.reportDir;
+    }
+    // support mocha-multi-reporters
+    if (Container.mocha() && typeof Container.mocha().options.reporterOptions.mochawesomeReporterOptions.reportDir !== 'undefined') {
+      absolutePathOfReportFolder = Container.mocha().options.reporterOptions.mochawesomeReporterOptions.reportDir;
+    }
+    return path.relative(absolutePathOfReportFolder, absolutePathOfImage);
   }
 
   /**
@@ -60,8 +78,11 @@ class ResembleHelper extends Helper {
 
     return new Promise((resolve, reject) => {
 
-      if (!options.outputSettings) {
+      if (options.outputSettings) {
         options.outputSettings = {};
+      }
+      if (typeof options.needsSameDimension === 'undefined') {
+        options.needsSameDimension = true;
       }
       resemble.outputSettings({
         boundingBox: options.boundingBox,
@@ -76,7 +97,7 @@ class ResembleHelper extends Helper {
         if (err) {
           reject(err);
         } else {
-          if (!data.isSameDimensions) {
+          if (options.needsSameDimension && !data.isSameDimensions) {
             let dimensions1 = sizeOf(baseImage);
             let dimensions2 = sizeOf(actualImage);
             reject(new Error(`The base image is of ${dimensions1.height} X ${dimensions1.width} and actual image is of ${dimensions2.height} X ${dimensions2.width}. Please use images of same dimensions so as to avoid any unexpected results.`));
@@ -170,11 +191,11 @@ class ResembleHelper extends Helper {
 
     if (mocha !== undefined && misMatch >= options.tolerance) {
       await mocha.addMochawesomeContext("Base Image");
-      await mocha.addMochawesomeContext(this._getBaseImagePath(baseImage, options));
+      await mocha.addMochawesomeContext(this.resolveImagePathRelativeFromReport(this._getBaseImagePath(baseImage, options)));
       await mocha.addMochawesomeContext("ScreenShot Image");
-      await mocha.addMochawesomeContext(this._getActualImagePath(baseImage));
+      await mocha.addMochawesomeContext(this.resolveImagePathRelativeFromReport(this._getActualImagePath(baseImage)));
       await mocha.addMochawesomeContext("Diff Image");
-      await mocha.addMochawesomeContext(this._getDiffImagePath(baseImage));
+      await mocha.addMochawesomeContext(this.resolveImagePathRelativeFromReport(this._getDiffImagePath(baseImage)));
     }
   }
 
@@ -286,7 +307,7 @@ class ResembleHelper extends Helper {
   /**
    * Check Visual Difference for Base and Screenshot Image
    * @param baseImage         Name of the Base Image (Base Image path is taken from Configuration)
-   * @param options           Options ex {prepareBaseImage: true, tolerance: 5} along with Resemble JS Options, read more here: https://github.com/rsmbl/Resemble.js
+   * @param {any} [options]           Options ex {prepareBaseImage: true, tolerance: 5} along with Resemble JS Options, read more here: https://github.com/rsmbl/Resemble.js
    * @returns {Promise<void>}
    */
   async seeVisualDiff(baseImage, options) {
@@ -298,7 +319,7 @@ class ResembleHelper extends Helper {
    *
    * @param selector   Selector which has to be compared expects these -> CSS|XPath|ID
    * @param baseImage  Base Image for comparison
-   * @param options    Options ex {prepareBaseImage: true, tolerance: 5} along with Resemble JS Options, read more here: https://github.com/rsmbl/Resemble.js
+   * @param {any} [options]    Options ex {prepareBaseImage: true, tolerance: 5} along with Resemble JS Options, read more here: https://github.com/rsmbl/Resemble.js
    * @returns {Promise<void>}
    */
   async seeVisualDiffForElement(selector, baseImage, options) {
