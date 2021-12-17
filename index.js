@@ -208,15 +208,17 @@ class ResembleHelper extends Helper {
    * @param bucketName
    * @param baseImage
    * @param options
+   * @param {string | Endpoint } [endpoint]
    * @returns {Promise<void>}
    */
 
-  async _upload(accessKeyId, secretAccessKey, region, bucketName, baseImage, options) {
+  async _upload(accessKeyId, secretAccessKey, region, bucketName, baseImage, options, endpoint) {
     console.log("Starting Upload... ");
     const s3 = new AWS.S3({
       accessKeyId: accessKeyId,
       secretAccessKey: secretAccessKey,
-      region: region
+      region: region,
+      endpoint: endpoint
     });
     fs.readFile(this._getActualImagePath(baseImage), (err, data) => {
       if (err) throw err;
@@ -279,16 +281,18 @@ class ResembleHelper extends Helper {
    * @param bucketName
    * @param baseImage
    * @param options
+   * @param {string | Endpoint } [endpoint]
    * @returns {Promise<void>}
    */
 
-  _download(accessKeyId, secretAccessKey, region, bucketName, baseImage, options) {
+  _download(accessKeyId, secretAccessKey, region, bucketName, baseImage, options, endpoint) {
     console.log("Starting Download...");
     const baseImageName = this._getBaseImageName(baseImage, options);
     const s3 = new AWS.S3({
       accessKeyId: accessKeyId,
       secretAccessKey: secretAccessKey,
-      region: region
+      region: region,
+      endpoint: endpoint
     });
     const params = {
       Bucket: bucketName,
@@ -337,7 +341,7 @@ class ResembleHelper extends Helper {
     if (this._getPrepareBaseImage(options)) {
       await this._prepareBaseImage(baseImage, options);
     } else if (awsC !== undefined) {
-      await this._download(awsC.accessKeyId, awsC.secretAccessKey, awsC.region, awsC.bucketName, baseImage, options);
+      await this._download(awsC.accessKeyId, awsC.secretAccessKey, awsC.region, awsC.bucketName, baseImage, options, awsC.endpoint);
     }
 
     if (selector) {
@@ -347,7 +351,7 @@ class ResembleHelper extends Helper {
     this._addAttachment(baseImage, misMatch, options);
     this._addMochaContext(baseImage, misMatch, options);
     if (awsC !== undefined) {
-      await this._upload(awsC.accessKeyId, awsC.secretAccessKey, awsC.region, awsC.bucketName, baseImage, options)
+      await this._upload(awsC.accessKeyId, awsC.secretAccessKey, awsC.region, awsC.bucketName, baseImage, options, awsC.endpoint)
     }
 
     this.debug("MisMatch Percentage Calculated is " + misMatch + " for baseline " + baseImage);
