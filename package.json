@@ -1,5 +1,5 @@
 {
-  "name": "codeceptjs-resemblehelper",
+  "name": "@ekolga/codeceptjs-resemblehelper",
   "version": "1.9.6",
   "description": "Market.kz Only. Resemble Js helper for CodeceptJS, with Support for Playwright, Webdriver, TestCafe, Puppeteer & Appium",
   "repository": {
