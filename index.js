@@ -41,8 +41,8 @@ class ResembleHelper extends Helper {
       absolutePathOfReportFolder = Container.mocha().options.reporterOptions.reportDir;
     }
     // support mocha-multi-reporters
-    if (Container.mocha() && typeof Container.mocha().options.reporterOptions.mochawesomeReporterOptions.reportDir !== 'undefined') {
-      absolutePathOfReportFolder = Container.mocha().options.reporterOptions.mochawesomeReporterOptions.reportDir;
+    if (Container.mocha() && typeof Container.mocha().options.reporterOptions.mochawesome.options.reportDir !== 'undefined') {
+      absolutePathOfReportFolder = Container.mocha().options.reporterOptions.mochawesome.options.reportDir;
     }
     return path.relative(absolutePathOfReportFolder, absolutePathOfImage);
   }
@@ -191,11 +191,11 @@ class ResembleHelper extends Helper {
 
     if (mocha !== undefined && misMatch >= options.tolerance) {
       await mocha.addMochawesomeContext("Base Image");
-      await mocha.addMochawesomeContext(this.resolveImagePathRelativeFromReport(this._getBaseImagePath(baseImage, options)));
+      await mocha.addMochawesomeContext(this._resolveRelativePath(this._getBaseImagePath(baseImage, options)));
       await mocha.addMochawesomeContext("ScreenShot Image");
-      await mocha.addMochawesomeContext(this.resolveImagePathRelativeFromReport(this._getActualImagePath(baseImage)));
+      await mocha.addMochawesomeContext(this._resolveRelativePath(this._getActualImagePath(baseImage)));
       await mocha.addMochawesomeContext("Diff Image");
-      await mocha.addMochawesomeContext(this.resolveImagePathRelativeFromReport(this._getDiffImagePath(baseImage)));
+      await mocha.addMochawesomeContext(this._resolveRelativePath(this._getDiffImagePath(baseImage)));
     }
   }
 
