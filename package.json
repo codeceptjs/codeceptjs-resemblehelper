@@ -20,7 +20,7 @@
     "allure-commandline": "^2.13.0",
     "codeceptjs": "^2.3.5",
     "mocha": "^6.2.2",
-    "mochawesome": "^4.1.0"
+    "mochawesome": "4.0.0"
   },
   "keywords": [
     "codeceptJS",
