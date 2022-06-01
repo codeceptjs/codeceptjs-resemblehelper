@@ -14,13 +14,13 @@
     "mkdirp": "^1.0.4",
     "mz": "2.7.0",
     "path": "^0.12.7",
-    "resemblejs": "^4.1.0"
+    "resemblejs": "4.0.0"
   },
   "devDependencies": {
     "allure-commandline": "^2.13.0",
     "codeceptjs": "^2.3.5",
     "mocha": "^6.2.2",
-    "mochawesome": "4.0.0"
+    "mochawesome": "^4.1.0"
   },
   "keywords": [
     "codeceptJS",
