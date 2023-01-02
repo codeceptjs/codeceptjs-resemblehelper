@@ -340,7 +340,8 @@ class ResembleHelper extends Helper {
       await this._download(awsC.accessKeyId, awsC.secretAccessKey, awsC.region, awsC.bucketName, baseImage, options);
     }
 
-    if (selector) {
+    // BoundingBox for Playwright not necessary
+    if (selector && !this.helpers['Playwright']) {
       options.boundingBox = await this._getBoundingBox(selector);
     }
     const misMatch = await this._fetchMisMatchPercentage(baseImage, options);
