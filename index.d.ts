@@ -10,6 +10,7 @@ declare class ResembleHelper {
     screenshotFolder: string;
     prepareBaseImage: any;
     resolvePath(folderPath: any): any;
+    _resolveRelativePath(folderPath: any): any;
     /**
      * Compare Images
      *
@@ -17,7 +18,7 @@ declare class ResembleHelper {
      * @param options
      * @returns {Promise<resolve | reject>}
      */
-    _compareImages(image: any, options: any): Promise<any | any>;
+    _compareImages(image: any, options: any): Promise<resolve | reject>;
     /**
      *
      * @param image
