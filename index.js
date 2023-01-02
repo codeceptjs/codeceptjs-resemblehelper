@@ -78,7 +78,7 @@ class ResembleHelper extends Helper {
 
     return new Promise((resolve, reject) => {
 
-      if (options.outputSettings) {
+      if (!options.outputSettings) {
         options.outputSettings = {};
       }
       if (typeof options.needsSameDimension === 'undefined') {
