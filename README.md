@@ -184,6 +184,28 @@ The resultant output image will be uploaded in a folder named "*output*" and dif
 If the `prepareBaseImage` option is marked `true`, then the generated base image will be uploaded to a folder named "*base*" in the S3 bucket.
 > Note: The tests may take a bit longer to run when the AWS configuration is provided as determined by the internet speed to upload/download images.
 
+### Other S3 Providers
+The same configuration as above, but with *endpoint* field:
+
+```json
+{
+    "helpers": {
+        "ResembleHelper" : {
+            "require": "codeceptjs-resemblehelper",
+            "baseFolder": "<location of base folder>",
+            "diffFolder": "<location of diff folder>",
+            "aws": {
+                "accessKeyId" : "<Your AccessKeyId>",
+                "secretAccessKey": "<Your secretAccessKey>",
+                "region": "<Region of Bucket>",
+                "bucketName": "<Bucket Name>",
+                "endpoint": "<Endpoint of Bucket>"
+            }
+        }
+    }
+}
+```
+
 ### Compare with custom image
 Usually, every screenshot needs to have the same filename as an existing image inside the `baseFolder` directory. To change this behavior, you can use the `compareWithImage` option and specify a different image inside the `baseFolder` directory.
 
