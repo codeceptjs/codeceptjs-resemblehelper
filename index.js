@@ -93,7 +93,7 @@ class ResembleHelper extends Helper {
       this.debug("Tolerance Level Provided " + options.tolerance);
       const tolerance = options.tolerance;
 
-      resemble.compare(baseImage, actualImage, options, (err, data) => {
+      resemble.compare(actualImage, baseImage, options, (err, data) => {
         if (err) {
           reject(err);
         } else {
