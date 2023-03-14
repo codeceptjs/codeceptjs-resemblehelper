@@ -3,6 +3,34 @@ export = ResembleHelper;
  * Resemble.js helper class for CodeceptJS, this allows screen comparison
  * @author Puneet Kala
  */
+declare class Endpoint {
+    /**
+     * Constructs a new endpoint given an endpoint URL.
+     */
+    constructor(url: string);
+
+    /**
+     * The host portion of the endpoint including the port, e.g., example.com:80.
+     */
+    host: string;
+    /**
+     * The host portion of the endpoint, e.g., example.com.
+     */
+    hostname: string;
+    /**
+     * The full URL of the endpoint.
+     */
+    href: string;
+    /**
+     * The port of the endpoint.
+     */
+    port: number;
+    /**
+     * The protocol (http or https) of the endpoint URL.
+     */
+    protocol: string;
+}
+
 declare class ResembleHelper {
     constructor(config: any);
     baseFolder: any;
@@ -10,6 +38,7 @@ declare class ResembleHelper {
     screenshotFolder: string;
     prepareBaseImage: any;
     resolvePath(folderPath: any): any;
+    _resolveRelativePath(folderPath: any): any;
     /**
      * Compare Images
      *
@@ -17,7 +46,7 @@ declare class ResembleHelper {
      * @param options
      * @returns {Promise<resolve | reject>}
      */
-    _compareImages(image: any, options: any): Promise<any | any>;
+    _compareImages(image: any, options: any): Promise<resolve | reject>;
     /**
      *
      * @param image
@@ -57,9 +86,10 @@ declare class ResembleHelper {
      * @param bucketName
      * @param baseImage
      * @param options
+     * @param {string | Endpoint } [endpoint]
      * @returns {Promise<void>}
      */
-    _upload(accessKeyId: any, secretAccessKey: any, region: any, bucketName: any, baseImage: any, options: any): Promise<void>;
+    _upload(accessKeyId: any, secretAccessKey: any, region: any, bucketName: any, baseImage: any, options: any, endpoint?: string | Endpoint): Promise<void>;
     /**
      * This method downloads base images from specified bucket into the base folder as mentioned in config file.
      * @param accessKeyId
@@ -68,9 +98,10 @@ declare class ResembleHelper {
      * @param bucketName
      * @param baseImage
      * @param options
+     * @param {string | Endpoint } [endpoint]
      * @returns {Promise<void>}
      */
-    _download(accessKeyId: any, secretAccessKey: any, region: any, bucketName: any, baseImage: any, options: any): Promise<void>;
+    _download(accessKeyId: any, secretAccessKey: any, region: any, bucketName: any, baseImage: any, options: any, endpoint?: string | Endpoint): Promise<void>;
     /**
      * Check Visual Difference for Base and Screenshot Image
      * @param baseImage         Name of the Base Image (Base Image path is taken from Configuration)

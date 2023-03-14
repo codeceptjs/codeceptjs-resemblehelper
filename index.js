@@ -41,7 +41,7 @@ class ResembleHelper extends Helper {
       absolutePathOfReportFolder = Container.mocha().options.reporterOptions.reportDir;
     }
     // support mocha-multi-reporters
-    if (Container.mocha() && typeof Container.mocha().options.reporterOptions.mochawesomeReporterOptions.reportDir !== 'undefined') {
+    if (Container.mocha() && typeof Container.mocha().options.reporterOptions.mochawesomeReporterOptions?.reportDir !== 'undefined') {
       absolutePathOfReportFolder = Container.mocha().options.reporterOptions.mochawesomeReporterOptions.reportDir;
     }
     return path.relative(absolutePathOfReportFolder, absolutePathOfImage);
@@ -78,7 +78,7 @@ class ResembleHelper extends Helper {
 
     return new Promise((resolve, reject) => {
 
-      if (options.outputSettings) {
+      if (!options.outputSettings) {
         options.outputSettings = {};
       }
       if (typeof options.needsSameDimension === 'undefined') {
@@ -93,7 +93,7 @@ class ResembleHelper extends Helper {
       this.debug("Tolerance Level Provided " + options.tolerance);
       const tolerance = options.tolerance;
 
-      resemble.compare(baseImage, actualImage, options, (err, data) => {
+      resemble.compare(actualImage, baseImage, options, (err, data) => {
         if (err) {
           reject(err);
         } else {
@@ -191,11 +191,11 @@ class ResembleHelper extends Helper {
 
     if (mocha !== undefined && misMatch >= options.tolerance) {
       await mocha.addMochawesomeContext("Base Image");
-      await mocha.addMochawesomeContext(this.resolveImagePathRelativeFromReport(this._getBaseImagePath(baseImage, options)));
+      await mocha.addMochawesomeContext(this._resolveRelativePath(this._getBaseImagePath(baseImage, options)));
       await mocha.addMochawesomeContext("ScreenShot Image");
-      await mocha.addMochawesomeContext(this.resolveImagePathRelativeFromReport(this._getActualImagePath(baseImage)));
+      await mocha.addMochawesomeContext(this._resolveRelativePath(this._getActualImagePath(baseImage)));
       await mocha.addMochawesomeContext("Diff Image");
-      await mocha.addMochawesomeContext(this.resolveImagePathRelativeFromReport(this._getDiffImagePath(baseImage)));
+      await mocha.addMochawesomeContext(this._resolveRelativePath(this._getDiffImagePath(baseImage)));
     }
   }
 
@@ -208,15 +208,17 @@ class ResembleHelper extends Helper {
    * @param bucketName
    * @param baseImage
    * @param options
+   * @param {string | Endpoint } [endpoint]
    * @returns {Promise<void>}
    */
 
-  async _upload(accessKeyId, secretAccessKey, region, bucketName, baseImage, options) {
+  async _upload(accessKeyId, secretAccessKey, region, bucketName, baseImage, options, endpoint) {
     console.log("Starting Upload... ");
     const s3 = new AWS.S3({
       accessKeyId: accessKeyId,
       secretAccessKey: secretAccessKey,
-      region: region
+      region: region,
+      endpoint: endpoint
     });
     fs.readFile(this._getActualImagePath(baseImage), (err, data) => {
       if (err) throw err;
@@ -279,16 +281,18 @@ class ResembleHelper extends Helper {
    * @param bucketName
    * @param baseImage
    * @param options
+   * @param {string | Endpoint } [endpoint]
    * @returns {Promise<void>}
    */
 
-  _download(accessKeyId, secretAccessKey, region, bucketName, baseImage, options) {
+  _download(accessKeyId, secretAccessKey, region, bucketName, baseImage, options, endpoint) {
     console.log("Starting Download...");
     const baseImageName = this._getBaseImageName(baseImage, options);
     const s3 = new AWS.S3({
       accessKeyId: accessKeyId,
       secretAccessKey: secretAccessKey,
-      region: region
+      region: region,
+      endpoint: endpoint
     });
     const params = {
       Bucket: bucketName,
@@ -337,17 +341,18 @@ class ResembleHelper extends Helper {
     if (this._getPrepareBaseImage(options)) {
       await this._prepareBaseImage(baseImage, options);
     } else if (awsC !== undefined) {
-      await this._download(awsC.accessKeyId, awsC.secretAccessKey, awsC.region, awsC.bucketName, baseImage, options);
+      await this._download(awsC.accessKeyId, awsC.secretAccessKey, awsC.region, awsC.bucketName, baseImage, options, awsC.endpoint);
     }
 
-    if (selector) {
+    // BoundingBox for Playwright not necessary
+    if (selector && !this.helpers['Playwright']) {
       options.boundingBox = await this._getBoundingBox(selector);
     }
     const misMatch = await this._fetchMisMatchPercentage(baseImage, options);
-    this._addAttachment(baseImage, misMatch, options);
-    this._addMochaContext(baseImage, misMatch, options);
+    await this._addAttachment(baseImage, misMatch, options);
+    await this._addMochaContext(baseImage, misMatch, options);
     if (awsC !== undefined) {
-      await this._upload(awsC.accessKeyId, awsC.secretAccessKey, awsC.region, awsC.bucketName, baseImage, options)
+      await this._upload(awsC.accessKeyId, awsC.secretAccessKey, awsC.region, awsC.bucketName, baseImage, options, awsC.endpoint)
     }
 
     this.debug("MisMatch Percentage Calculated is " + misMatch + " for baseline " + baseImage);
