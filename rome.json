@@ -1,0 +1,23 @@
+{
+	"$schema": "./node_modules/rome/configuration_schema.json",
+	"formatter": {
+		"enabled": true,
+		"indentSize": 4,
+		"indentStyle": "tab",
+		"lineWidth": 120,
+		"ignore": [".gitingore", "*.json", ".github/workflows/*.yml", "__test__", ".npmignore"]
+	},
+	"linter": {
+		"enabled": true,
+		"rules": {
+			"recommended": true,
+			"suspicious": {
+				"recommended": true,
+				"noExplicitAny": "off"
+			},
+			"style": {
+				"recommended": true
+			}
+		}
+	}
+}
