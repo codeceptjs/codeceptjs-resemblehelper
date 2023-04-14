@@ -5,7 +5,7 @@ const helpers = container.helpers();
 let helper = new ResembleHelper({	baseFolder: 'string',
     diffFolder: 'string',
     screenshotFolder: 'string',
-    prepareBaseImage: 'string'})
+    prepareBaseImage: true })
 
 describe('_getHelper()', () => {
     test('should return error when no matching helper found', () => {
@@ -22,11 +22,11 @@ describe('_getPrepareBaseImage()', () => {
         helpers['Playwright'] = { hello: 1 }
     })
     test('should return false when no prepareBaseImage is provided', () => {
-        expect(helper._getPrepareBaseImage({ hello: 1 })).toBeFalsy()
+        expect(helper._getPrepareBaseImage({ prepareBaseImage: false, tolerance: 1 })).toBeFalsy()
     });
 
     test('should return true when prepareBaseImage matched with config', () => {
-        expect(helper._getPrepareBaseImage({ prepareBaseImage: 'string' })).toBeTruthy()
+        expect(helper._getPrepareBaseImage({ prepareBaseImage: true })).toBeTruthy()
     });
 })
 
