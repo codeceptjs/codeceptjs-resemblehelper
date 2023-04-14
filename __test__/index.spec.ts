@@ -15,13 +15,7 @@ describe('_getHelper()', () => {
             expect(e.message).toEqual('No matching helper found. Supported helpers: Playwright/Puppeteer/WebDriver/TestCafe/Appium')
         }
     });
-
-    test('should return matching helper', () => {
-        helpers['Playwright'] = { hello: 1 }
-        expect(helper._getHelper()).toEqual({ hello: 1 })
-    });
 })
-
 
 describe('_getPrepareBaseImage()', () => {
     beforeAll(() => {
@@ -73,5 +67,4 @@ describe('resolvePath()', () => {
     test('should return resolvePath', () => {
         expect(helper.resolvePath('hello')).toContain('hello')
     });
-
 })

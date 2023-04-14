@@ -21,3 +21,15 @@ jobs:
         run: |
           npm i
           npm test
+      - name: Build
+        run: |
+          npm i
+          npm run build
+      - name: Run acceptance tests
+        working-directory: ./__test__
+        run: |
+          npm i
+          npm run test
+        env:
+          MAILINATOR_TOKEN: ${{secrets.MAILINATOR_TOKEN}}
+          MAILINATOR_DOMAIN: ${{secrets.MAILINATOR_DOMAIN}}

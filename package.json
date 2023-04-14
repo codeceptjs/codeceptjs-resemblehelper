@@ -25,8 +25,9 @@
   },
   "devDependencies": {
     "@types/jest": "^29.5.0",
+    "@types/mocha": "^10.0.1",
     "allure-commandline": "^2.13.0",
-    "codeceptjs": "^2.3.5",
+    "codeceptjs": "^3.4.1",
     "jest": "^29.5.0",
     "mocha": "^6.2.2",
     "mochawesome": "^4.1.0",

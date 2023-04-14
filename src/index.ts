@@ -1,5 +1,4 @@
-import { Helper } from "codeceptjs";
-import * as console from "console";
+const { Helper } = require('codeceptjs');
 const resemble = require("resemblejs");
 const fs = require("fs");
 const assert = require("assert");
@@ -48,10 +47,10 @@ interface Endpoint {
 }
 
 class ResembleHelper extends Helper {
-	baseFolder?: any;
-	diffFolder?: any;
+	baseFolder: any;
+	diffFolder: any;
 	screenshotFolder?: string;
-	prepareBaseImage?: any;
+	prepareBaseImage?: boolean;
 	config?: any;
 
 	constructor(config: any) {
@@ -60,13 +59,13 @@ class ResembleHelper extends Helper {
 		outputDir = require("codeceptjs").config.get().output || "output";
 		this.baseFolder = this.resolvePath(config.baseFolder);
 		this.diffFolder = this.resolvePath(config.diffFolder);
-		this.screenshotFolder = this.resolvePath(config.screenshotFolder);
+		this.screenshotFolder = this.resolvePath(config.screenshotFolder || 'output');
 		this.prepareBaseImage = config.prepareBaseImage;
 	}
 
 	resolvePath(folderPath: string) {
 		if (!path.isAbsolute(folderPath)) {
-			return `${path.resolve(outputDir, folderPath)}/`;
+			return `${path.resolve(folderPath)}/`;
 		}
 		return folderPath;
 	}
@@ -221,7 +220,7 @@ class ResembleHelper extends Helper {
 	 */
 
 	async _addAttachment(baseImage: any, misMatch: any, options: any) {
-		const allure: any = codeceptjs.container.plugins("allure");
+		const allure: any = require('codeceptjs').container.plugins("allure");
 
 		if (allure !== undefined && misMatch >= options.tolerance) {
 			allure.addAttachment("Base Image", fs.readFileSync(this._getBaseImagePath(baseImage, options)), "image/png");
@@ -410,6 +409,8 @@ class ResembleHelper extends Helper {
 
 		const awsC = this.config.aws;
 
+		this._getHelper()
+
 		if (this._getPrepareBaseImage(options)) {
 			await this._prepareBaseImage(baseImage, options);
 		} else if (awsC !== undefined) {
@@ -550,16 +551,28 @@ class ResembleHelper extends Helper {
 	}
 
 	_getHelper() {
-		let isSupportedHelper:any;
-		supportedHelper.forEach((item) => {
-			if (this.helpers[item]) {
-				isSupportedHelper =  this.helpers[item]
-				return
-			}
-		});
+		if (this.helpers['Puppeteer']) {
+			return this.helpers['Puppeteer'];
+		}
 
-		if (!isSupportedHelper) throw new Error(`No matching helper found. Supported helpers: ${supportedHelper.join("/")}`);
-		return isSupportedHelper
+		if (this.helpers['WebDriver']) {
+			return this.helpers['WebDriver'];
+		}
+		if (this.helpers['Appium']) {
+			return this.helpers['Appium'];
+		}
+		if (this.helpers['WebDriverIO']) {
+			return this.helpers['WebDriverIO'];
+		}
+		if (this.helpers['TestCafe']) {
+			return this.helpers['TestCafe'];
+		}
+
+		if (this.helpers['Playwright']) {
+			return this.helpers['Playwright'];
+		}
+
+		throw Error(`No matching helper found. Supported helpers: ${supportedHelper.join("/")}`);
 	}
 
 	/**
