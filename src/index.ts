@@ -60,8 +60,7 @@ class ResembleHelper extends Helper {
 		outputDir = require("codeceptjs").config.get().output || "output";
 		this.baseFolder = this.resolvePath(config.baseFolder);
 		this.diffFolder = this.resolvePath(config.diffFolder);
-		// @ts-ignore
-		this.screenshotFolder = `${outputDir}/`;
+		this.screenshotFolder = this.resolvePath(config.screenshotFolder);
 		this.prepareBaseImage = config.prepareBaseImage;
 	}
 
