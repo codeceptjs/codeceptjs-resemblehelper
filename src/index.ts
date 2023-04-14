@@ -23,6 +23,16 @@ interface Config {
 	prepareBaseImage: string;
 }
 
+interface Options {
+	tolerance?: any;
+	ignoredBox?: any;
+	boundingBox?: any;
+	needsSameDimension?: boolean;
+	outputSettings?: any;
+	prepareBaseImage?: boolean;
+	compareWithImage?: any
+}
+
 interface Endpoint {
 	/**
 	 * The host portion of the endpoint including the port, e.g., example.com:80.
@@ -97,7 +107,7 @@ class ResembleHelper extends Helper {
 	 * @param options
 	 * @returns {Promise<resolve | reject>}
 	 */
-	async _compareImages(image: any, options: any) {
+	async _compareImages(image: any, options: Options) {
 		const baseImage = this._getBaseImagePath(image, options);
 		const actualImage = this._getActualImagePath(image);
 		const diffImage = this._getDiffImagePath(image);
@@ -170,7 +180,7 @@ class ResembleHelper extends Helper {
 	 * @param options
 	 * @returns {Promise<*>}
 	 */
-	async _fetchMisMatchPercentage(image: any, options: any) {
+	async _fetchMisMatchPercentage(image: any, options: Options) {
 		const result = this._compareImages(image, options);
 		const data: any = await Promise.resolve(result);
 		return data.misMatchPercentage;
@@ -219,7 +229,7 @@ class ResembleHelper extends Helper {
 	 * @returns {Promise<void>}
 	 */
 
-	async _addAttachment(baseImage: any, misMatch: any, options: any) {
+	async _addAttachment(baseImage: any, misMatch: any, options: Options) {
 		const allure: any = require('codeceptjs').container.plugins("allure");
 
 		if (allure !== undefined && misMatch >= options.tolerance) {
@@ -381,7 +391,7 @@ class ResembleHelper extends Helper {
 	 * @param {any} [options]           Options ex {prepareBaseImage: true, tolerance: 5} along with Resemble JS Options, read more here: https://github.com/rsmbl/Resemble.js
 	 * @returns {Promise<void>}
 	 */
-	async seeVisualDiff(baseImage: any, options: any) {
+	async seeVisualDiff(baseImage: any, options: Options) {
 		await this._assertVisualDiff(undefined, baseImage, options);
 	}
 
@@ -393,7 +403,7 @@ class ResembleHelper extends Helper {
 	 * @param {any} [options]    Options ex {prepareBaseImage: true, tolerance: 5} along with Resemble JS Options, read more here: https://github.com/rsmbl/Resemble.js
 	 * @returns {Promise<void>}
 	 */
-	async seeVisualDiffForElement(selector: any, baseImage: any, options: any) {
+	async seeVisualDiffForElement(selector: any, baseImage: any, options: Options) {
 		await this._assertVisualDiff(selector, baseImage, options);
 	}
 
@@ -581,7 +591,7 @@ class ResembleHelper extends Helper {
 	 * @param options Helper options
 	 * @returns {string}
 	 */
-	_getBaseImageName(image: any, options: { compareWithImage: any }) {
+	_getBaseImageName(image: any, options: { compareWithImage?: any }) {
 		return options.compareWithImage ? options.compareWithImage : image;
 	}
 
@@ -591,7 +601,7 @@ class ResembleHelper extends Helper {
 	 * @param options Helper options
 	 * @returns {string}
 	 */
-	_getBaseImagePath(image: string, options: any) {
+	_getBaseImagePath(image: string, options: Options) {
 		return this.baseFolder + this._getBaseImageName(image, options);
 	}
 
@@ -619,7 +629,7 @@ class ResembleHelper extends Helper {
 	 * @param options Helper options
 	 * @returns {boolean}
 	 */
-	_getPrepareBaseImage(options: any) {
+	_getPrepareBaseImage(options: Options) {
 		if ("undefined" !== typeof options.prepareBaseImage) {
 			// Cast to bool with `!!` for backwards compatibility
 			return !!options.prepareBaseImage;
