@@ -5,7 +5,7 @@
 		"indentSize": 4,
 		"indentStyle": "tab",
 		"lineWidth": 120,
-		"ignore": [".gitingore", "*.json", ".github/workflows/*.yml", "__test__", ".npmignore"]
+		"ignore": [".gitingore", "*.json", ".github/workflows/*.yml", ".npmignore"]
 	},
 	"linter": {
 		"enabled": true,

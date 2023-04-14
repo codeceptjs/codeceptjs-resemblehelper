@@ -1,4 +1,5 @@
 import { Helper } from "codeceptjs";
+import * as console from "console";
 const resemble = require("resemblejs");
 const fs = require("fs");
 const assert = require("assert");
@@ -47,16 +48,16 @@ interface Endpoint {
 }
 
 class ResembleHelper extends Helper {
-	baseFolder: any;
-	diffFolder: any;
-	screenshotFolder: string;
-	prepareBaseImage: any;
-	config: any;
+	baseFolder?: any;
+	diffFolder?: any;
+	screenshotFolder?: string;
+	prepareBaseImage?: any;
+	config?: any;
 
-	constructor(config: Config) {
+	constructor(config: any) {
 		// @ts-ignore
 		super(config);
-		outputDir = require("codeceptjs").config.get().output;
+		outputDir = require("codeceptjs").config.get().output || "output";
 		this.baseFolder = this.resolvePath(config.baseFolder);
 		this.diffFolder = this.resolvePath(config.diffFolder);
 		// @ts-ignore
@@ -550,11 +551,16 @@ class ResembleHelper extends Helper {
 	}
 
 	_getHelper() {
-		let helper: any;
-		supportedHelper.forEach((item) => (helper = this.helpers[item]));
+		let isSupportedHelper:any;
+		supportedHelper.forEach((item) => {
+			if (this.helpers[item]) {
+				isSupportedHelper =  this.helpers[item]
+				return
+			}
+		});
 
-		if (!helper) throw new Error(`No matching helper found. Supported helpers: ${supportedHelper.join("/")}`);
-		return helper;
+		if (!isSupportedHelper) throw new Error(`No matching helper found. Supported helpers: ${supportedHelper.join("/")}`);
+		return isSupportedHelper
 	}
 
 	/**

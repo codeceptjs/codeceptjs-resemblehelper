@@ -63,3 +63,4 @@ typings/
 #webstorm
 .idea
 dist
+coverage
