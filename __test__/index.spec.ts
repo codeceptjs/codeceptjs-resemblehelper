@@ -2,9 +2,9 @@ import ResembleHelper from "../src";
 const { container } = require('codeceptjs');
 const helpers = container.helpers();
 
-let helper = new ResembleHelper({	baseFolder: 'string',
-    diffFolder: 'string',
-    screenshotFolder: 'string',
+let helper = new ResembleHelper({	baseFolder: './__test__/screenshots/base/',
+    diffFolder: './__test__/screenshots/diff/',
+    screenshotFolder: './__test__/output',
     prepareBaseImage: true })
 
 describe('_getHelper()', () => {

@@ -57,8 +57,8 @@ interface Endpoint {
 }
 
 class ResembleHelper extends Helper {
-	baseFolder: any;
-	diffFolder: any;
+	baseFolder: string;
+	diffFolder: string;
 	screenshotFolder?: string;
 	prepareBaseImage?: boolean;
 	config?: any;
@@ -391,7 +391,7 @@ class ResembleHelper extends Helper {
 	 * @param {any} [options]           Options ex {prepareBaseImage: true, tolerance: 5} along with Resemble JS Options, read more here: https://github.com/rsmbl/Resemble.js
 	 * @returns {Promise<void>}
 	 */
-	async seeVisualDiff(baseImage: any, options: Options) {
+	async seeVisualDiff(baseImage: any, options?: Options) {
 		await this._assertVisualDiff(undefined, baseImage, options);
 	}
 
@@ -410,7 +410,7 @@ class ResembleHelper extends Helper {
 	async _assertVisualDiff(
 		selector: undefined,
 		baseImage: string,
-		options: { tolerance?: any; boundingBox?: any; skipFailure?: any },
+		options?: { tolerance?: any; boundingBox?: any; skipFailure?: any },
 	) {
 		if (!options) {
 			options = {};
@@ -418,8 +418,6 @@ class ResembleHelper extends Helper {
 		}
 
 		const awsC = this.config.aws;
-
-		this._getHelper()
 
 		if (this._getPrepareBaseImage(options)) {
 			await this._prepareBaseImage(baseImage, options);
