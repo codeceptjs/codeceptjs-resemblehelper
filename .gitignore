@@ -62,3 +62,8 @@ typings/
 
 #webstorm
 .idea
+dist
+coverage
+__test__/node_modules
+__test__/package-lock.json
+__test__/output

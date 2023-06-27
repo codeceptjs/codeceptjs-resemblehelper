@@ -1,0 +1,35 @@
+name: Unit tests
+
+on: [push]
+
+jobs:
+  test:
+
+    runs-on: ubuntu-latest
+
+    strategy:
+      matrix:
+        node-version: [16.x, 18.x]
+
+    steps:
+      - uses: actions/checkout@v3
+      - name: Use Node.js ${{ matrix.node-version }}
+        uses: actions/setup-node@v3
+        with:
+          node-version: ${{ matrix.node-version }}
+      - name: run unit tests
+        run: |
+          npm i
+          npm test
+      - name: Build
+        run: |
+          npm i
+          npm run build
+      - name: Run acceptance tests
+        working-directory: ./__test__
+        run: |
+          npm i
+          npm run test
+        env:
+          MAILINATOR_TOKEN: ${{secrets.MAILINATOR_TOKEN}}
+          MAILINATOR_DOMAIN: ${{secrets.MAILINATOR_DOMAIN}}

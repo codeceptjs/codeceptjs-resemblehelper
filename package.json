@@ -6,6 +6,13 @@
     "type": "git",
     "url": "git@github.com:Percona-Lab/codeceptjs-resemblehelper.git"
   },
+  "scripts": {
+    "build": "tsc",
+    "lint": "rome ci src",
+    "format": "rome format src --write",
+    "lint:fix": "rome check src --apply-suggested",
+    "test": "jest --coverage"
+  },
   "dependencies": {
     "assert": "^1.5.0",
     "aws-sdk": "2.1027.0",
@@ -17,10 +24,16 @@
     "resemblejs": "4.0.0"
   },
   "devDependencies": {
+    "@types/jest": "^29.5.0",
+    "@types/mocha": "^10.0.1",
     "allure-commandline": "^2.13.0",
-    "codeceptjs": "^2.3.5",
+    "codeceptjs": "^3.4.1",
+    "jest": "^29.5.0",
     "mocha": "^6.2.2",
-    "mochawesome": "^4.1.0"
+    "mochawesome": "^4.1.0",
+    "rome": "^12.0.0",
+    "ts-jest": "^29.1.0",
+    "typescript": "^5.0.4"
   },
   "keywords": [
     "codeceptJS",
@@ -29,5 +42,15 @@
     "codeceptjs-resemble"
   ],
   "author": "Puneet Kala <puneet.kala@percona.com>",
-  "license": "MIT"
+  "license": "MIT",
+  "files": [
+    "dist/*",
+    "README.md"
+  ],
+  "release": {
+    "branches": [
+      "main",
+      "master"
+    ]
+  }
 }
