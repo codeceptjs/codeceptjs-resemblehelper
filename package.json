@@ -29,7 +29,7 @@
     "allure-commandline": "^2.13.0",
     "codeceptjs": "^3.4.1",
     "jest": "^29.5.0",
-    "mocha": "^6.2.2",
+    "mocha": "^10.2.0",
     "mochawesome": "^4.1.0",
     "rome": "^12.0.0",
     "ts-jest": "^29.1.0",
