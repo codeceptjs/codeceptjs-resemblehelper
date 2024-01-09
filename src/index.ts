@@ -233,9 +233,12 @@ class ResembleHelper extends Helper {
 		const allure: any = require('codeceptjs').container.plugins("allure");
 
 		if (allure !== undefined && misMatch >= options.tolerance) {
-			allure.addAttachment("Base Image", fs.readFileSync(this._getBaseImagePath(baseImage, options)), "image/png");
-			allure.addAttachment("Screenshot Image", fs.readFileSync(this._getActualImagePath(baseImage)), "image/png");
-			allure.addAttachment("Diff Image", fs.readFileSync(this._getDiffImagePath(baseImage)), "image/png");
+			allure.addScreenDiff(
+				'Screen Diff',
+				fs.readFileSync(this._getBaseImagePath(baseImage, options), { encoding: 'base64' }),
+				fs.readFileSync(this._getActualImagePath(baseImage), { encoding: 'base64' }),
+				fs.readFileSync(this._getDiffImagePath(baseImage), { encoding: 'base64' })
+			)
 		}
 	}
 
