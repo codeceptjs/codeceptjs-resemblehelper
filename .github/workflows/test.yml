@@ -25,7 +25,7 @@ jobs:
           node-version: ${{ matrix.node-version }}
       - name: run unit tests
         run: |
-          npm i
+          npm i && npx playwright install chromium
           npm test
       - name: Build
         run: |
@@ -34,7 +34,7 @@ jobs:
       - name: Run acceptance tests
         working-directory: ./__test__
         run: |
-          npm i
+          npm i && npx playwright install chromium
           npm run test
         env:
           MAILINATOR_TOKEN: ${{secrets.MAILINATOR_TOKEN}}
