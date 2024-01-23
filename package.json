@@ -10,7 +10,7 @@
     "build": "tsc",
     "lint": "rome ci src",
     "format": "rome format src --write",
-    "lint:fix": "rome check src --apply-suggested",
+    "lint:fix": "rome check src --apply-unsafe",
     "test": "jest --coverage"
   },
   "dependencies": {
