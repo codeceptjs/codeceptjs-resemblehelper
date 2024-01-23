@@ -1,4 +1,4 @@
-const { Helper } = require('codeceptjs');
+const { Helper } = require("codeceptjs");
 const resemble = require("resemblejs");
 const fs = require("fs");
 const assert = require("assert");
@@ -30,7 +30,7 @@ interface Options {
 	needsSameDimension?: boolean;
 	outputSettings?: any;
 	prepareBaseImage?: boolean;
-	compareWithImage?: any
+	compareWithImage?: any;
 }
 
 interface Endpoint {
@@ -69,7 +69,7 @@ class ResembleHelper extends Helper {
 		outputDir = require("codeceptjs").config.get().output || "output";
 		this.baseFolder = this.resolvePath(config.baseFolder);
 		this.diffFolder = this.resolvePath(config.diffFolder);
-		this.screenshotFolder = this.resolvePath(config.screenshotFolder || 'output');
+		this.screenshotFolder = this.resolvePath(config.screenshotFolder || "output");
 		this.prepareBaseImage = config.prepareBaseImage;
 	}
 
@@ -230,7 +230,7 @@ class ResembleHelper extends Helper {
 	 */
 
 	async _addAttachment(baseImage: any, misMatch: any, options: Options) {
-		const allure: any = require('codeceptjs').container.plugins("allure");
+		const allure: any = require("codeceptjs").container.plugins("allure");
 
 		if (allure !== undefined && misMatch >= options.tolerance) {
 			allure.addAttachment("Base Image", fs.readFileSync(this._getBaseImagePath(baseImage, options)), "image/png");
@@ -559,25 +559,25 @@ class ResembleHelper extends Helper {
 	}
 
 	_getHelper() {
-		if (this.helpers['Puppeteer']) {
-			return this.helpers['Puppeteer'];
+		if (this.helpers["Puppeteer"]) {
+			return this.helpers["Puppeteer"];
 		}
 
-		if (this.helpers['WebDriver']) {
-			return this.helpers['WebDriver'];
+		if (this.helpers["WebDriver"]) {
+			return this.helpers["WebDriver"];
 		}
-		if (this.helpers['Appium']) {
-			return this.helpers['Appium'];
+		if (this.helpers["Appium"]) {
+			return this.helpers["Appium"];
 		}
-		if (this.helpers['WebDriverIO']) {
-			return this.helpers['WebDriverIO'];
+		if (this.helpers["WebDriverIO"]) {
+			return this.helpers["WebDriverIO"];
 		}
-		if (this.helpers['TestCafe']) {
-			return this.helpers['TestCafe'];
+		if (this.helpers["TestCafe"]) {
+			return this.helpers["TestCafe"];
 		}
 
-		if (this.helpers['Playwright']) {
-			return this.helpers['Playwright'];
+		if (this.helpers["Playwright"]) {
+			return this.helpers["Playwright"];
 		}
 
 		throw Error(`No matching helper found. Supported helpers: ${supportedHelper.join("/")}`);
