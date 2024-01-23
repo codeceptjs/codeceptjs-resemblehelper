@@ -27,6 +27,10 @@ jobs:
         run: |
           npm i && npx playwright install chromium
           npm test
+      - name: lint check
+        run: |
+          npm i
+          npm run lint
       - name: Build
         run: |
           npm i
