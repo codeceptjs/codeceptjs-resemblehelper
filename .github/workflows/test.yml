@@ -15,7 +15,7 @@ jobs:
 
     strategy:
       matrix:
-        node-version: [18.x]
+        node-version: [20.x]
 
     steps:
       - uses: actions/checkout@v3
@@ -27,6 +27,10 @@ jobs:
         run: |
           npm i && npx playwright install chromium
           npm test
+      - name: lint check
+        run: |
+          npm i
+          npm run lint
       - name: Build
         run: |
           npm i
