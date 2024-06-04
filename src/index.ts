@@ -442,7 +442,7 @@ class ResembleHelper extends Helper {
 		await this._addMochaContext(baseImage, misMatch, options);
 		if (awsC !== undefined) {
 			if (awsC.skipS3Upload) {
-				this.debug(`Uploading to S3 is skipped due to skipS3Upload is set`);
+				this.debug("Uploading to S3 is skipped due to skipS3Upload is set");
 			} else {
 				await this._upload(
 					awsC.accessKeyId,
