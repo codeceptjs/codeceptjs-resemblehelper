@@ -441,15 +441,19 @@ class ResembleHelper extends Helper {
 		await this._addAttachment(baseImage, misMatch, options);
 		await this._addMochaContext(baseImage, misMatch, options);
 		if (awsC !== undefined) {
-			await this._upload(
-				awsC.accessKeyId,
-				awsC.secretAccessKey,
-				awsC.region,
-				awsC.bucketName,
-				baseImage,
-				options,
-				awsC.endpoint,
-			);
+			if (awsC.skipS3Upload) {
+				this.debug(`Uploading to S3 is skipped due to skipS3Upload is set`);
+			} else {
+				await this._upload(
+					awsC.accessKeyId,
+					awsC.secretAccessKey,
+					awsC.region,
+					awsC.bucketName,
+					baseImage,
+					options,
+					awsC.endpoint,
+				);
+			}
 		}
 
 		this.debug(`MisMatch Percentage Calculated is ${misMatch} for baseline ${baseImage}`);

@@ -161,10 +161,10 @@ Set `output` to where the generated report is to be stored. Default is the outpu
 ### AWS Support
 AWS S3 support to upload and download various images is also provided.
 It can be used by adding the *aws* code inside `"ResembleHelper"` in the `"helpers"` section in config file. The final result should look like:    
-```json
+```js
 {
     "helpers": {
-        "ResembleHelper" : {
+        "ResembleHelper": {
             "require": "codeceptjs-resemblehelper",
             "baseFolder": "<location of base folder>",
             "diffFolder": "<location of diff folder>",
@@ -172,7 +172,8 @@ It can be used by adding the *aws* code inside `"ResembleHelper"` in the `"helpe
                 "accessKeyId" : "<Your AccessKeyId>",
                 "secretAccessKey": "<Your secretAccessKey>",
                 "region": "<Region of Bucket>",
-                "bucketName": "<Bucket Name>"
+                "bucketName": "<Bucket Name>",
+                "skipS3Upload": true,
             }
         }
     }
@@ -183,6 +184,7 @@ This base image has to be located inside a folder named "*base*".
 The resultant output image will be uploaded in a folder named "*output*" and diff image will be uploaded to a folder named "*diff*" in the S3 bucket.
 If the `prepareBaseImage` option is marked `true`, then the generated base image will be uploaded to a folder named "*base*" in the S3 bucket.
 > Note: The tests may take a bit longer to run when the AWS configuration is provided as determined by the internet speed to upload/download images.
+> Note: if you want to skip the s3 upload, set skipS3Upload to true.
 
 ### Other S3 Providers
 The same configuration as above, but with *endpoint* field:
