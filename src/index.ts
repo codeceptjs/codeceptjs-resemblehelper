@@ -281,6 +281,7 @@ class ResembleHelper extends Helper {
 		baseImage: any,
 		options: any,
 		endpoint: Endpoint,
+		uploadOnlyBaseImage: boolean,
 	) {
 		console.log("Starting Upload... ");
 		const s3 = new AWS.S3({
@@ -289,6 +290,35 @@ class ResembleHelper extends Helper {
 			region: region,
 			endpoint,
 		});
+
+		// If prepareBaseImage is false, then it won't upload the baseImage. However, this parameter is not considered if the config file has a prepareBaseImage set to true.
+		if (this._getPrepareBaseImage(options)) {
+			const baseImageName = this._getBaseImageName(baseImage, options);
+
+			fs.readFile(this._getBaseImagePath(baseImage, options), (err: any, data: any) => {
+				if (err) throw err;
+				else {
+					const base64data = new Buffer(data, "binary");
+					const params = {
+						Bucket: bucketName,
+						Key: `base/${baseImageName}`,
+						Body: base64data,
+					};
+					s3.upload(params, (uErr: any, uData: { Location: any }) => {
+						if (uErr) throw uErr;
+						console.log(`Base Image uploaded at ${uData.Location}`);
+					});
+				}
+			});
+		} else {
+			console.log("Not Uploading base Image");
+		}
+
+		if (uploadOnlyBaseImage) {
+			this.debug("Only the Base Image is uploaded to S3. Skipping upload of diff and output folders!");
+			return;
+		}
+
 		fs.readFile(this._getActualImagePath(baseImage), (err: any, data: any) => {
 			if (err) throw err;
 			const base64data = new Buffer(data, "binary");
@@ -317,29 +347,6 @@ class ResembleHelper extends Helper {
 				});
 			}
 		});
-
-		// If prepareBaseImage is false, then it won't upload the baseImage. However, this parameter is not considered if the config file has a prepareBaseImage set to true.
-		if (this._getPrepareBaseImage(options)) {
-			const baseImageName = this._getBaseImageName(baseImage, options);
-
-			fs.readFile(this._getBaseImagePath(baseImage, options), (err: any, data: any) => {
-				if (err) throw err;
-				else {
-					const base64data = new Buffer(data, "binary");
-					const params = {
-						Bucket: bucketName,
-						Key: `base/${baseImageName}`,
-						Body: base64data,
-					};
-					s3.upload(params, (uErr: any, uData: { Location: any }) => {
-						if (uErr) throw uErr;
-						console.log(`Base Image uploaded at ${uData.Location}`);
-					});
-				}
-			});
-		} else {
-			console.log("Not Uploading base Image");
-		}
 	}
 
 	/**
@@ -441,9 +448,6 @@ class ResembleHelper extends Helper {
 		await this._addAttachment(baseImage, misMatch, options);
 		await this._addMochaContext(baseImage, misMatch, options);
 		if (awsC !== undefined) {
-			if (awsC.skipS3Upload) {
-				this.debug("Uploading to S3 is skipped due to skipS3Upload is set");
-			} else {
 				await this._upload(
 					awsC.accessKeyId,
 					awsC.secretAccessKey,
@@ -452,8 +456,8 @@ class ResembleHelper extends Helper {
 					baseImage,
 					options,
 					awsC.endpoint,
+					awsC.uploadOnlyBaseImage
 				);
-			}
 		}
 
 		this.debug(`MisMatch Percentage Calculated is ${misMatch} for baseline ${baseImage}`);
