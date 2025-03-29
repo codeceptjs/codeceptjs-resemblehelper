@@ -412,15 +412,17 @@ class ResembleHelper extends Helper {
 		baseImage: string,
 		options?: { tolerance?: any; boundingBox?: any; skipFailure?: any },
 	) {
-		if (!options) {
-			options = {};
-			options.tolerance = 0;
+		let newOptions = options;
+
+		if (!newOptions) {
+			newOptions = {};
+			newOptions.tolerance = 0;
 		}
 
 		const awsC = this.config.aws;
 
-		if (this._getPrepareBaseImage(options)) {
-			await this._prepareBaseImage(baseImage, options);
+		if (this._getPrepareBaseImage(newOptions)) {
+			await this._prepareBaseImage(baseImage, newOptions);
 		} else if (awsC !== undefined) {
 			await this._download(
 				awsC.accessKeyId,
@@ -435,11 +437,11 @@ class ResembleHelper extends Helper {
 
 		// BoundingBox for Playwright not necessary
 		if (selector && !this.helpers["Playwright"]) {
-			options.boundingBox = await this._getBoundingBox(selector);
+			newOptions.boundingBox = await this._getBoundingBox(selector);
 		}
-		const misMatch = await this._fetchMisMatchPercentage(baseImage, options);
-		await this._addAttachment(baseImage, misMatch, options);
-		await this._addMochaContext(baseImage, misMatch, options);
+		const misMatch = await this._fetchMisMatchPercentage(baseImage, newOptions);
+		await this._addAttachment(baseImage, misMatch, newOptions);
+		await this._addMochaContext(baseImage, misMatch, newOptions);
 		if (awsC !== undefined) {
 			await this._upload(
 				awsC.accessKeyId,
@@ -454,9 +456,9 @@ class ResembleHelper extends Helper {
 
 		this.debug(`MisMatch Percentage Calculated is ${misMatch} for baseline ${baseImage}`);
 
-		if (!options.skipFailure) {
+		if (!newOptions.skipFailure) {
 			assert(
-				misMatch <= options.tolerance,
+				misMatch <= newOptions.tolerance,
 				`Screenshot does not match with the baseline ${baseImage} when MissMatch Percentage is ${misMatch}`,
 			);
 		}
