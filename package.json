@@ -15,9 +15,9 @@
   },
   "dependencies": {
     "assert": "^2.1.0",
-    "aws-sdk": "2.1692.0",
+    "aws-sdk": "^2.1692.0",
     "canvas": "^3.1.0",
-    "image-size": "2.0.1",
+    "image-size": "2.0.2",
     "mkdirp": "^3.0.1",
     "mz": "2.7.0",
     "path": "^0.12.7",
